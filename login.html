@@ -583,9 +583,15 @@
         // Stocker en localStorage pour le frontend
         localStorage.setItem('geo_user', JSON.stringify(data.user));
 
-        // Rediriger vers l'accueil après 800ms
+        // Rediriger vers la page d'origine ou l'accueil après 800ms
         setTimeout(() => {
-          window.location.href = 'index.html';
+          const redirectUrl = sessionStorage.getItem('geo_redirect_after_login');
+          if (redirectUrl) {
+            sessionStorage.removeItem('geo_redirect_after_login');
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = 'index.html';
+          }
         }, 800);
 
       } catch (err) {
