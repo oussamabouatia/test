@@ -8,6 +8,9 @@
 
   const AUTH_KEY = 'geo_user';
 
+  // Pages publiques qui ne nécessitent pas de connexion
+  const PUBLIC_PAGES = ['login.html', 'register.html'];
+
   // ── Utilitaires ──
   function getUser() {
     try {
@@ -22,6 +25,26 @@
 
   function clearUser() {
     localStorage.removeItem(AUTH_KEY);
+  }
+
+  // ── Vérifier si la page actuelle est publique ──
+  function isPublicPage() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    return PUBLIC_PAGES.some(page => currentPage.includes(page));
+  }
+
+  // ── Rediriger vers login si non authentifié ──
+  function requireAuth() {
+    if (!isPublicPage()) {
+      const user = getUser();
+      if (!user) {
+        // Sauvegarder la page actuelle pour redirection après connexion
+        sessionStorage.setItem('geo_redirect_after_login', window.location.pathname + window.location.search);
+        window.location.href = 'login.html';
+        return false;
+      }
+    }
+    return true;
   }
 
   // ── Injecter le bouton auth dans la nav ──
@@ -113,13 +136,19 @@
   // ── Init ──
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      renderAuthUI();
-      // Sync avec le serveur en arrière-plan (non bloquant)
-      syncSession();
+      // Vérifier l'authentification avant d'afficher la page
+      if (requireAuth()) {
+        renderAuthUI();
+        // Sync avec le serveur en arrière-plan (non bloquant)
+        syncSession();
+      }
     });
   } else {
-    renderAuthUI();
-    syncSession();
+    // Vérifier l'authentification avant d'afficher la page
+    if (requireAuth()) {
+      renderAuthUI();
+      syncSession();
+    }
   }
 
   // Exposer globalement
