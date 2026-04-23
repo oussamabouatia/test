@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parcours d'apprentissage — GéoCollège</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0f4f8;--card:#fff;--green:#16a34a;--green-light:#dcfce7;--blue:#2563eb;--purple:#7c3aed;--red:#dc2626;--orange:#ea580c;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.06)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.navbar{background:linear-gradient(135deg,#166534,#16a34a);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.navbar a{color:#fff;text-decoration:none;font-weight:700;font-size:18px}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-links a{color:rgba(255,255,255,.85);font-size:13px;font-weight:500;padding:6px 12px;border-radius:20px;transition:.2s}
+.nav-links a:hover,.nav-links a.active{background:rgba(255,255,255,.2);color:#fff}
+.nav-user{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#16a34a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#166534 0%,#16a34a 50%,#4ade80 100%);padding:32px 20px 48px;color:#fff;text-align:center}
+.hero h1{font-size:24px;font-weight:800;margin-bottom:6px}
+.hero p{opacity:.85;font-size:14px}
+.level-bar{max-width:360px;margin:16px auto 0;background:rgba(255,255,255,.2);border-radius:20px;height:10px;overflow:hidden}
+.level-fill{height:100%;background:#fff;border-radius:20px;transition:width .6s ease}
+.level-info{display:flex;justify-content:space-between;max-width:360px;margin:6px auto 0;font-size:12px;opacity:.8}
+
+/* Container */
+.container{max-width:720px;margin:0 auto;padding:0 16px 100px}
+
+/* Chapter card */
+.chapter{margin-top:-24px;position:relative;z-index:10}
+.chapter+.chapter{margin-top:24px}
+.ch-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border);transition:transform .2s}
+.ch-header{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer}
+.ch-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ch-info{flex:1;min-width:0}
+.ch-title{font-weight:700;font-size:15px}
+.ch-desc{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-progress{display:flex;align-items:center;gap:8px}
+.ch-pbar{width:80px;height:6px;background:var(--border);border-radius:6px;overflow:hidden}
+.ch-pfill{height:100%;border-radius:6px;transition:width .4s}
+.ch-ptext{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+/* Lessons */
+.ch-lessons{padding:0 20px 16px;display:none}
+.ch-card.open .ch-lessons{display:block}
+.lesson{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;margin-top:8px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.lesson:hover{background:#f8fafc;border-color:var(--border)}
+.lesson.locked{opacity:.5;cursor:not-allowed}
+.lesson.locked:hover{background:transparent;border-color:transparent}
+.ls-status{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700}
+.ls-status.complete{background:var(--green-light);color:var(--green)}
+.ls-status.en_cours{background:#fef3c7;color:#d97706}
+.ls-status.non_vu{background:#f1f5f9;color:var(--muted)}
+.ls-status.locked{background:#f1f5f9;color:#cbd5e1}
+.ls-info{flex:1;min-width:0}
+.ls-title{font-weight:600;font-size:14px}
+.ls-meta{font-size:11px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.ls-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.ls-score{font-size:12px;font-weight:700;color:var(--green)}
+.ls-arrow{color:var(--muted);font-size:16px}
+
+/* Tooltip */
+.tooltip{position:absolute;background:#1e293b;color:#fff;font-size:12px;padding:8px 14px;border-radius:10px;z-index:200;pointer-events:none;white-space:nowrap;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Login modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:20px;padding:32px 28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal h2{font-size:20px;font-weight:800;margin-bottom:4px;text-align:center}
+.modal p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--green)}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#166534,#16a34a);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:.2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.recover-link{text-align:center;margin-top:12px;font-size:12px;color:var(--blue);cursor:pointer}
+
+/* Floating dict btn */
+.fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#166534,#16a34a);color:#fff;border:none;box-shadow:0 4px 20px rgba(22,163,74,.35);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:90;transition:.2s}
+.fab:hover{transform:scale(1.1)}
+
+/* Badges strip */
+.badges-strip{margin-top:32px;background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.badges-strip h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.badges-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.badge-item{flex-shrink:0;width:60px;text-align:center}
+.badge-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 4px}
+.badge-icon.earned{background:linear-gradient(135deg,#fef3c7,#fde68a);box-shadow:0 2px 8px rgba(234,179,8,.3)}
+.badge-icon.locked{background:#f1f5f9;filter:grayscale(1);opacity:.4}
+.badge-name{font-size:9px;color:var(--muted);line-height:1.2}
+
+.hidden{display:none}
+@media(max-width:480px){.nav-links a:not(.active){display:none}.hero h1{font-size:20px}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html">● GéoCollège</a>
+  <div class="nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="formes.html">Formes</a>
+    <a href="learning-path.html" class="active">Parcours</a>
+  </div>
+  <div class="nav-user" id="navUser"></div>
+</nav>
+
+<div class="hero" id="hero">
+  <h1 id="heroTitle">Mon Parcours</h1>
+  <p id="heroSub">Charge en cours...</p>
+  <div class="level-bar"><div class="level-fill" id="levelFill" style="width:0%"></div></div>
+  <div class="level-info"><span id="levelName"></span><span id="levelPts"></span></div>
+</div>
+
+<div class="container">
+  <!-- ── LOCAL CHAPTER TIMELINE (localStorage-based) ── -->
+  <div id="localTimeline" style="margin-bottom:32px;"></div>
+  <script>
+  (function(){
+    const CHAPTERS = [
+      { title:'Chapitre 1 — Triangles', level:'1AC', color:'#1d4ed8', icon:'▲', lessons:[
+        {slug:'triangle-quelconque',name:'Triangle quelconque'},
+        {slug:'triangle-equilateral',name:'Triangle équilatéral'},
+        {slug:'triangle-isocele',name:'Triangle isocèle'},
+        {slug:'triangle-rectangle',name:'Triangle rectangle'}
+      ]},
+      { title:'Chapitre 2 — Quadrilatères', level:'1AC-2AC', color:'#854d0e', icon:'■', lessons:[
+        {slug:'carre',name:'Carré'},
+        {slug:'rectangle',name:'Rectangle'},
+        {slug:'parallelogramme',name:'Parallélogramme'},
+        {slug:'losange',name:'Losange'},
+        {slug:'trapeze',name:'Trapèze'}
+      ]},
+      { title:'Chapitre 3 — Cercles', level:'2AC', color:'#7e22ce', icon:'●', lessons:[
+        {slug:'cercle',name:'Cercle'},
+        {slug:'disque',name:'Disque'}
+      ]},
+      { title:'Chapitre 4 — Théorèmes', level:'2AC-3AC', color:'#dc2626', icon:'⚡', lessons:[
+        {slug:'pythagore',name:'Théorème de Pythagore'},
+        {slug:'thales',name:'Théorème de Thalès'}
+      ]}
+    ];
+    const progress = JSON.parse(localStorage.getItem('geocollege_progress') || '{}');
+    const allSlugs = CHAPTERS.flatMap(ch=>ch.lessons.map(l=>l.slug));
+    const container = document.getElementById('localTimeline');
+    let lessonNum = 0;
+    let html = '<div style="font-family:\'Inter\',sans-serif;font-size:14px;font-weight:700;color:#1e293b;margin-bottom:16px;">📍 Plan du parcours</div>';
+    CHAPTERS.forEach((ch, ci) => {
+      const done = ch.lessons.filter(l => progress[l.slug]?.statut === 'complete').length;
+      const total = ch.lessons.length;
+      const pct = total > 0 ? Math.round((done/total)*100) : 0;
+      html += `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);">`;
+      html += `<div style="padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #e2e8f0;background:${ch.color}08;">`;
+      html += `<div style="width:40px;height:40px;border-radius:10px;background:${ch.color}15;color:${ch.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${ch.icon}</div>`;
+      html += `<div style="flex:1;"><div style="font-weight:700;font-size:14px;">${ch.title}</div><div style="font-size:12px;color:#64748b;margin-top:2px;">${ch.level}</div></div>`;
+      html += `<div style="display:flex;align-items:center;gap:8px;">`;
+      html += `<div style="width:80px;height:6px;background:#e2e8f0;border-radius:6px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${ch.color};border-radius:6px;transition:width .4s;"></div></div>`;
+      html += `<span style="font-size:11px;color:#64748b;font-weight:600;white-space:nowrap;">${done}/${total}</span>`;
+      html += `</div></div>`;
+      html += `<div style="padding:8px 12px;">`;
+      ch.lessons.forEach((l, li) => {
+        lessonNum++;
+        const p = progress[l.slug];
+        const prevSlug = li > 0 ? ch.lessons[li-1].slug : (ci > 0 ? CHAPTERS[ci-1].lessons[CHAPTERS[ci-1].lessons.length-1].slug : null);
+        const isFirst = lessonNum === 1;
+        const prevDone = !prevSlug || progress[prevSlug]?.statut === 'complete';
+        const unlocked = isFirst || prevDone || (p && p.statut);
+        const status = p?.statut === 'complete' ? 'complete' : p?.statut === 'en_cours' ? 'en_cours' : (unlocked ? 'available' : 'locked');
+        const icon = status==='complete'?'✅':status==='en_cours'?'⏳':status==='locked'?'🔒':lessonNum;
+        const opacity = status==='locked'?'0.5':'1';
+        const cursor = status==='locked'?'not-allowed':'pointer';
+        const href = status==='locked'?'#':`lecon.html?id=${l.slug}`;
+        const scoreHtml = p?.score ? `<span style="font-size:12px;font-weight:700;color:#16a34a;">${p.score}%</span>` : '';
+        html += `<a href="${href}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;margin-bottom:4px;text-decoration:none;color:inherit;opacity:${opacity};cursor:${cursor};transition:all .2s;border:1px solid transparent;" onmouseover="if(${status!=='locked'})this.style.background='#f8fafc';this.style.borderColor='#e2e8f0'" onmouseout="this.style.background='none';this.style.borderColor='transparent'" ${status==='locked'?'onclick="event.preventDefault();"':''}>`;
+        html += `<div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${typeof icon==='number'?'13px':'14px'};font-weight:700;flex-shrink:0;background:${status==='complete'?'#dcfce7':status==='en_cours'?'#fef3c7':'#f1f5f9'};color:${status==='complete'?'#16a34a':status==='en_cours'?'#d97706':'#64748b'};">${icon}</div>`;
+        html += `<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:14px;">${l.name}</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Leçon ${lessonNum}</div></div>`;
+        html += scoreHtml;
+        html += `<span style="color:#64748b;font-size:14px;">${status!=='locked'?'→':''}</span>`;
+        html += `</a>`;
+      });
+      html += `</div></div>`;
+    });
+    container.innerHTML = html;
+  })();
+  </script>
+
+  <div id="chaptersContainer"></div>
+  <div class="badges-strip" id="badgesStrip"><h3>Mes Badges</h3><div class="badges-row" id="badgesRow"></div></div>
+</div>
+
+<a href="index.html#search" class="fab" title="Dictionnaire">📖</a>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal" style="display:none">
+  <div class="modal">
+    <h2>Bienvenue ! 👋</h2>
+    <p>Cree ton profil pour suivre ta progression</p>
+    <div id="loginForm">
+      <div class="form-group"><label>Prenom</label><input id="inPrenom" placeholder="Ton prenom"></div>
+      <div class="form-group"><label>Nom</label><input id="inNom" placeholder="Ton nom"></div>
+      <div class="form-group"><label>Classe</label>
+        <select id="inClasse"><option>1AC-1</option><option>1AC-2</option><option>1AC-3</option><option>2AC-1</option><option>2AC-2</option><option>2AC-3</option><option>3AC-1</option><option>3AC-2</option><option>3AC-3</option></select>
+      </div>
+      <div class="form-group"><label>Niveau</label>
+        <select id="inNiveau"><option value="1AC">1AC</option><option value="2AC">2AC</option><option value="3AC">3AC</option></select>
+      </div>
+      <button class="btn-primary" onclick="register()">Commencer le parcours →</button>
+      <div class="recover-link" onclick="showRecover()">J'ai deja un code de recuperation</div>
+    </div>
+    <div id="recoverForm" class="hidden">
+      <div class="form-group"><label>Code de recuperation (6 chiffres)</label><input id="inCode" maxlength="6" placeholder="000000" inputmode="numeric"></div>
+      <button class="btn-primary" onclick="recover()">Recuperer mon compte</button>
+      <div class="recover-link" onclick="showLogin()">← Creer un nouveau profil</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Offline sync utility ──
+async function syncPost(url,data){if(navigator.onLine){try{await fetch(url,{method:'POST',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}})}catch(e){addToSyncQueue(url,data)}}else{addToSyncQueue(url,data)}}
+function addToSyncQueue(url,data){const q=JSON.parse(localStorage.getItem('geocollege_sync_queue')||'[]');q.push({url,data,timestamp:Date.now()});localStorage.setItem('geocollege_sync_queue',JSON.stringify(q))}
+async function flushSyncQueue(){const q=JSON.parse(localStorage.getItem('geocollege_sync_queue')||'[]');if(!q.length||!navigator.onLine)return;for(const i of q)await fetch(i.url,{method:'POST',body:JSON.stringify(i.data),headers:{'Content-Type':'application/json'}}).catch(()=>{});localStorage.removeItem('geocollege_sync_queue')}
+window.addEventListener('online',flushSyncQueue);window.addEventListener('load',flushSyncQueue);
+
+const API = '';
+let ELEVE = null;
+
+function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:r&0x3|0x8).toString(16)})}
+
+async function init(){
+  const id = localStorage.getItem('geocollege_eleve_id');
+  if(!id){document.getElementById('loginModal').style.display='flex';return}
+  try{
+    const r=await fetch(API+'api/eleves.php?id='+id);
+    const d=await r.json();
+    if(d.error){localStorage.removeItem('geocollege_eleve_id');document.getElementById('loginModal').style.display='flex';return}
+    ELEVE=d;
+    renderProfile();
+    loadPath();
+    loadBadges();
+  }catch(e){document.getElementById('heroSub').textContent='Erreur de connexion.'}
+}
+
+async function register(){
+  const prenom=document.getElementById('inPrenom').value.trim();
+  const nom=document.getElementById('inNom').value.trim();
+  if(!prenom||!nom){alert('Remplis tous les champs !');return}
+  const id=uuid();
+  const classe=document.getElementById('inClasse').value;
+  const niveau=document.getElementById('inNiveau').value;
+  try{
+    const r=await fetch(API+'api/eleves.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,nom,prenom,classe,niveau})});
+    const d=await r.json();
+    if(d.error){alert(d.message);return}
+    localStorage.setItem('geocollege_eleve_id',id);
+    localStorage.setItem('geocollege_recovery_code',d.eleve.code_recuperation);
+    alert('Ton code de recuperation : '+d.eleve.code_recuperation+'\nNote-le !');
+    document.getElementById('loginModal').style.display='none';
+    ELEVE=d;
+    renderProfile();loadPath();loadBadges();
+  }catch(e){alert('Erreur reseau.')}
+}
+
+async function recover(){
+  const code=document.getElementById('inCode').value.trim();
+  if(code.length!==6){alert('Le code doit faire 6 chiffres.');return}
+  try{
+    const r=await fetch(API+'api/eleves.php?code='+code);
+    const d=await r.json();
+    if(d.error){alert('Code invalide.');return}
+    localStorage.setItem('geocollege_eleve_id',d.eleve.id);
+    localStorage.setItem('geocollege_recovery_code',d.eleve.code_recuperation);
+    document.getElementById('loginModal').style.display='none';
+    ELEVE=d;
+    renderProfile();loadPath();loadBadges();
+  }catch(e){alert('Erreur reseau.')}
+}
+
+function showRecover(){document.getElementById('loginForm').classList.add('hidden');document.getElementById('recoverForm').classList.remove('hidden')}
+function showLogin(){document.getElementById('recoverForm').classList.add('hidden');document.getElementById('loginForm').classList.remove('hidden')}
+
+function renderProfile(){
+  const e=ELEVE.eleve;const l=ELEVE.level;
+  document.getElementById('heroTitle').textContent='Salut, '+e.prenom+' !';
+  document.getElementById('heroSub').textContent=l.icon+' '+l.name+' — '+e.niveau+' '+e.classe;
+  const pct=l.next?Math.min(100,((e.points_total-l.min)/(l.next-l.min))*100):100;
+  document.getElementById('levelFill').style.width=pct+'%';
+  document.getElementById('levelName').textContent=l.icon+' '+l.name;
+  document.getElementById('levelPts').textContent=e.points_total+(l.next?' / '+l.next+' pts':' pts — MAX !');
+  document.getElementById('navUser').innerHTML='<div class="nav-avatar">'+e.prenom[0]+e.nom[0]+'</div><a href="mon-profil.html" style="color:#fff;text-decoration:none;font-size:13px">'+e.prenom+'</a>';
+}
+
+async function loadPath(){
+  const r=await fetch(API+'api/progression.php?eleve_id='+ELEVE.eleve.id);
+  const d=await r.json();
+  if(d.error)return;
+  const container=document.getElementById('chaptersContainer');
+  container.innerHTML='';
+  const leconsByChap={};
+  d.lecons.forEach(l=>{if(!leconsByChap[l.chapitre_id])leconsByChap[l.chapitre_id]=[];leconsByChap[l.chapitre_id].push(l)});
+  d.chapitres.forEach((ch,ci)=>{
+    const pct=ch.total_lecons>0?Math.round((ch.lecons_done/ch.total_lecons)*100):0;
+    const lessons=leconsByChap[ch.id]||[];
+    const div=document.createElement('div');div.className='chapter';
+    div.innerHTML=`<div class="ch-card ${ci===0?'open':''}">
+      <div class="ch-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ch-icon" style="background:${ch.couleur}15;color:${ch.couleur}">${ch.icone}</div>
+        <div class="ch-info"><div class="ch-title">${ch.titre}</div><div class="ch-desc">${ch.description||''}</div></div>
+        <div class="ch-progress"><div class="ch-pbar"><div class="ch-pfill" style="width:${pct}%;background:${ch.couleur}"></div></div><div class="ch-ptext">${ch.lecons_done}/${ch.total_lecons}</div></div>
+      </div>
+      <div class="ch-lessons">${lessons.map(l=>{
+        const st=l.locked?'locked':(l.statut||'non_vu');
+        const icon=st==='complete'?'✅':st==='en_cours'?'⏳':st==='locked'?'🔒':(lessons.indexOf(l)+1);
+        return `<div class="lesson ${st}" onclick="${l.locked?`showTooltip(event,'Termine d\\'abord : ${(l.prerequis||[])[0]||'prerequis'}')`:
+          `window.location='lecon.html?slug=${l.slug}'`}">
+          <div class="ls-status ${st}">${icon}</div>
+          <div class="ls-info">
+            <div class="ls-title">${l.titre}</div>
+            <div class="ls-meta">
+              <span>⏱ ${l.duree_min} min</span>
+              <span>${'⭐'.repeat(l.difficulte)}</span>
+              ${l.forme_nom?`<span class="ls-badge" style="background:${ch.couleur}15;color:${ch.couleur}">${l.forme_nom}</span>`:''}
+            </div>
+          </div>
+          ${st==='complete'?`<div class="ls-score">${l.score}%</div>`:''}
+          <div class="ls-arrow">${l.locked?'':'→'}</div>
+        </div>`}).join('')}
+      </div>
+    </div>`;
+    container.appendChild(div);
+  });
+}
+
+async function loadBadges(){
+  const r=await fetch(API+'api/badges.php?eleve_id='+ELEVE.eleve.id);
+  const d=await r.json();if(d.error)return;
+  document.getElementById('badgesRow').innerHTML=d.badges.map(b=>`
+    <div class="badge-item"><div class="badge-icon ${b.earned?'earned':'locked'}">${b.icone}</div><div class="badge-name">${b.nom}</div></div>
+  `).join('');
+}
+
+let tooltipTimer;
+function showTooltip(e,text){
+  document.querySelectorAll('.tooltip').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='tooltip';t.textContent='🔒 '+text;
+  t.style.left=e.clientX+'px';t.style.top=(e.clientY-40)+'px';
+  document.body.appendChild(t);
+  clearTimeout(tooltipTimer);tooltipTimer=setTimeout(()=>t.remove(),2000);
+}
+
+init();
+</script>
+</body>
+</html>

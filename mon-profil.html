@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon Profil — GeoCollege</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f0f4f8;--card:#fff;--green:#16a34a;--green-light:#dcfce7;--blue:#2563eb;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.06)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.navbar{background:linear-gradient(135deg,#166534,#16a34a);padding:14px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.navbar a{color:#fff;text-decoration:none;font-weight:700;font-size:18px}
+.back-btn{color:rgba(255,255,255,.8);font-size:22px;cursor:pointer;text-decoration:none}
+.container{max-width:720px;margin:0 auto;padding:24px 16px 60px}
+
+/* Profile header */
+.profile-header{text-align:center;padding:32px 20px;background:linear-gradient(135deg,#166534 0%,#16a34a 50%,#4ade80 100%);border-radius:0 0 24px 24px;margin:-1px -16px 24px;color:#fff}
+.avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:0 auto 12px;border:3px solid rgba(255,255,255,.3)}
+.profile-name{font-size:22px;font-weight:800}
+.profile-classe{font-size:14px;opacity:.8;margin-top:4px}
+.level-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);padding:6px 16px;border-radius:20px;margin-top:10px;font-size:13px;font-weight:600}
+.xp-bar{max-width:300px;margin:12px auto 0;height:8px;background:rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
+.xp-fill{height:100%;background:#fff;border-radius:10px;transition:width .6s}
+.xp-text{font-size:11px;opacity:.7;margin-top:4px}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-val{font-size:24px;font-weight:800;color:var(--green)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Sections */
+.section{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px}
+.section h3{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* Badges */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:12px}
+.badge-card{text-align:center;padding:10px 6px;border-radius:12px;transition:.2s}
+.badge-card.earned{background:linear-gradient(135deg,#fefce8,#fef3c7);border:1px solid #fde68a}
+.badge-card.locked{opacity:.4;filter:grayscale(1)}
+.badge-emoji{font-size:28px;display:block;margin-bottom:4px}
+.badge-name{font-size:10px;font-weight:600;color:var(--text);line-height:1.2}
+.badge-date{font-size:9px;color:var(--muted);margin-top:2px}
+.badge-cond{font-size:9px;color:var(--muted);margin-top:2px;font-style:italic}
+
+/* History */
+.history-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.history-item:last-child{border:none}
+.hi-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.hi-icon.ok{background:var(--green-light);color:var(--green)}
+.hi-icon.ko{background:#fef2f2;color:#dc2626}
+.hi-info{flex:1;min-width:0}
+.hi-title{font-size:13px;font-weight:600}
+.hi-date{font-size:11px;color:var(--muted)}
+.hi-score{font-size:14px;font-weight:700}
+
+/* Recovery code */
+.recovery-box{background:linear-gradient(135deg,#fefce8,#fef3c7);border:2px solid #fde68a;border-radius:14px;padding:16px 20px;text-align:center;cursor:pointer;transition:.2s}
+.recovery-box:hover{transform:translateY(-1px)}
+.recovery-code{font-size:28px;font-weight:800;letter-spacing:6px;color:#92400e;margin-top:6px}
+.recovery-label{font-size:12px;color:#92400e;opacity:.7}
+
+.btn-logout{width:100%;padding:12px;background:#fef2f2;color:#dc2626;border:2px solid #fecaca;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px;font-family:inherit}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="learning-path.html" class="back-btn">←</a>
+  <a href="index.html">● GéoCollège</a>
+</nav>
+
+<div class="container">
+  <div class="profile-header" id="profileHeader"></div>
+  <div class="stats-grid" id="statsGrid"></div>
+  <div class="section" id="badgesSection"><h3>🏅 Mes Badges</h3><div class="badges-grid" id="badgesGrid"></div></div>
+  <div class="section" id="historySection"><h3>📋 Dernieres lecons</h3><div id="historyList"></div></div>
+  <div class="section"><h3>🔑 Code de recuperation</h3><div class="recovery-box" onclick="copyCode()"><div class="recovery-label">Clique pour copier</div><div class="recovery-code" id="recoveryCode">------</div></div></div>
+  <button class="btn-logout" onclick="logout()">Deconnexion</button>
+</div>
+
+<script>
+const API='';const ELEVE_ID=localStorage.getItem('geocollege_eleve_id');
+if(!ELEVE_ID)window.location='learning-path.html';
+
+async function init(){
+  const r=await fetch(API+'api/eleves.php?id='+ELEVE_ID);const d=await r.json();
+  if(d.error){window.location='learning-path.html';return}
+  const e=d.eleve;const l=d.level;
+  const pct=l.next?Math.min(100,((e.points_total-l.min)/(l.next-l.min))*100):100;
+  document.getElementById('profileHeader').innerHTML=`
+    <div class="avatar">${e.prenom[0]}${e.nom[0]}</div>
+    <div class="profile-name">${e.prenom} ${e.nom}</div>
+    <div class="profile-classe">${e.niveau} — ${e.classe}</div>
+    <div class="level-badge">${l.icon} ${l.name}</div>
+    <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
+    <div class="xp-text">${e.points_total}${l.next?' / '+l.next:''}  points</div>`;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${d.stats.lessons_done}</div><div class="stat-label">Lecons</div></div>
+    <div class="stat-card"><div class="stat-val">${d.stats.avg_score}%</div><div class="stat-label">Moyenne</div></div>
+    <div class="stat-card"><div class="stat-val">${d.badges_count}</div><div class="stat-label">Badges</div></div>`;
+  document.getElementById('recoveryCode').textContent=e.code_recuperation;
+  localStorage.setItem('geocollege_recovery_code',e.code_recuperation);
+  loadBadges();loadHistory();
+}
+
+async function loadBadges(){
+  const r=await fetch(API+'api/badges.php?eleve_id='+ELEVE_ID);const d=await r.json();
+  document.getElementById('badgesGrid').innerHTML=d.badges.map(b=>`
+    <div class="badge-card ${b.earned?'earned':'locked'}">
+      <span class="badge-emoji">${b.icone}</span>
+      <div class="badge-name">${b.nom}</div>
+      ${b.earned?'<div class="badge-date">'+new Date(b.obtained_at).toLocaleDateString('fr')+'</div>':'<div class="badge-cond">'+b.condition_type+'</div>'}
+    </div>`).join('');
+}
+
+async function loadHistory(){
+  const r=await fetch(API+'api/progression.php?eleve_id='+ELEVE_ID);const d=await r.json();
+  const completed=d.lecons.filter(l=>l.statut==='complete').sort((a,b)=>new Date(b.completed_at)-new Date(a.completed_at)).slice(0,10);
+  document.getElementById('historyList').innerHTML=completed.length?completed.map(l=>`
+    <div class="history-item">
+      <div class="hi-icon ${l.score>=60?'ok':'ko'}">${l.score>=60?'✅':'❌'}</div>
+      <div class="hi-info"><div class="hi-title">${l.titre}</div><div class="hi-date">${l.completed_at?new Date(l.completed_at).toLocaleDateString('fr'):''}</div></div>
+      <div class="hi-score" style="color:${l.score>=60?'var(--green)':'#dc2626'}">${l.score}%</div>
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Aucune lecon terminee pour le moment.</p>';
+}
+
+function copyCode(){
+  const code=document.getElementById('recoveryCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>alert('Code copie : '+code)).catch(()=>{});
+}
+
+function logout(){
+  localStorage.removeItem('geocollege_eleve_id');
+  localStorage.removeItem('geocollege_recovery_code');
+  window.location='learning-path.html';
+}
+
+init();
+</script>
+</body>
+</html>

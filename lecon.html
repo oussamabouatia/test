@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leçon — GéoCollège</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#16a34a;--green-d:#14532d;--green-l:#dcfce7;--green-m:#4ade80;--bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.08)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:var(--green-d);text-decoration:none;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.nav-title{font-size:13px;color:var(--muted);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.step-bar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;position:sticky;top:60px;z-index:90;display:flex;align-items:center;justify-content:center;gap:0}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--surface2);color:var(--muted);transition:.3s;flex-shrink:0;cursor:pointer}
+.step-dot.active{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(22,163,74,.3)}
+.step-dot.done{background:var(--green-l);color:var(--green)}
+.step-line{flex:1;height:3px;background:var(--border);margin:0 6px;border-radius:2px;max-width:60px}
+.step-line.done{background:var(--green)}
+.step-info{text-align:center;margin-top:8px;font-size:11px;color:var(--muted);font-weight:600}
+.container{max-width:760px;margin:0 auto;padding:28px 20px}
+.card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:20px;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card h2{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--green);margin-bottom:16px}
+.card h3{font-size:14px;font-weight:700;margin:16px 0 8px;color:var(--text)}
+.card p{font-size:14px;line-height:1.7;margin-bottom:10px}
+.card ul{padding-left:20px;margin-bottom:12px}
+.card li{font-size:14px;line-height:1.7;margin-bottom:4px}
+.formula-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin:14px 0;text-align:center;font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:#166534}
+.fig-wrap{display:flex;justify-content:center;margin:20px 0}
+.fig-wrap svg{max-width:180px;height:auto}
+.ex-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.ex-num{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.ex-q{font-size:15px;font-weight:600;margin-bottom:14px;line-height:1.5}
+.qcm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qcm-btn{padding:12px;border:2px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-family:inherit;text-align:left;transition:.2s}
+.qcm-btn:hover{border-color:var(--green);background:#f0fdf4}
+.qcm-btn.correct{border-color:var(--green);background:var(--green-l);color:var(--green-d);font-weight:600}
+.qcm-btn.wrong{border-color:#dc2626;background:#fef2f2;color:#dc2626}
+.qcm-btn.disabled{pointer-events:none;opacity:.7}
+.calc-wrap{display:flex;gap:8px;align-items:center}
+.calc-input{flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:16px;font-family:inherit;outline:none}
+.calc-input:focus{border-color:var(--green)}
+.calc-input.correct{border-color:var(--green);background:var(--green-l)}
+.calc-input.wrong{border-color:#dc2626;background:#fef2f2}
+.btn-check{padding:12px 20px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+.fb{margin-top:8px;padding:10px 14px;border-radius:10px;font-size:13px;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--green-l);color:var(--green-d)}
+.fb.ko{background:#fef2f2;color:#dc2626}
+.hint{margin-top:6px;padding:8px 12px;background:#fef3c7;border-radius:8px;font-size:12px;color:#92400e;display:none}
+.hint.show{display:block}
+.score-bar{text-align:center;font-size:16px;font-weight:700;margin:16px 0;color:var(--green)}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:80}
+.step-label{font-size:13px;color:var(--muted);font-weight:600}
+.btn-next{padding:14px 36px;background:linear-gradient(135deg,#166534,#16a34a);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-next:hover{box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.btn-next:disabled{opacity:.4;cursor:not-allowed}
+.btn-back{padding:14px 20px;background:var(--surface2);color:var(--text);border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer}
+.celeb{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.celeb.show{display:flex}
+.celeb-box{background:#fff;border-radius:24px;padding:40px 32px;max-width:400px;width:100%;text-align:center;animation:fadeUp .4s}
+.celeb-icon{font-size:48px;margin-bottom:12px}
+.celeb-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;margin-bottom:4px}
+.celeb-pts{font-size:16px;color:var(--green);font-weight:700;margin:8px 0 20px}
+.celeb-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.confetti{position:fixed;top:-10px;width:10px;height:10px;border-radius:2px;z-index:600;animation:fall 3s ease-in forwards}
+@keyframes fall{to{top:110vh;transform:rotate(720deg);opacity:0}}
+@media(max-width:480px){.qcm-grid{grid-template-columns:1fr}.card{padding:20px 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="learning-path.html" style="gap:6px;font-size:15px;">← <span class="dot"></span>GéoCollège</a>
+  <span class="nav-title" id="navTitle"></span>
+</nav>
+
+<div class="step-bar" id="stepBar">
+  <div class="step-dot active" data-s="0">📖</div>
+  <div class="step-line"></div>
+  <div class="step-dot" data-s="1" id="dotInteractif">🎛️</div>
+  <div class="step-line"></div>
+  <div class="step-dot" data-s="2">✏️</div>
+  <div class="step-line"></div>
+  <div class="step-dot" data-s="3">📄</div>
+</div>
+
+<div class="container" id="main"></div>
+
+<div class="bottom-bar">
+  <span class="step-label" id="stepLabel">Étape 1/4</span>
+  <div>
+    <button class="btn-back" id="btnBack" onclick="prev()" style="display:none">← Retour</button>
+    <button class="btn-next" id="btnNext" onclick="next()">Suivant →</button>
+  </div>
+</div>
+
+<div class="celeb" id="celeb">
+  <div class="celeb-box">
+    <div class="celeb-icon">🎉</div>
+    <div class="celeb-title">Leçon terminée !</div>
+    <div class="celeb-pts" id="celebPts"></div>
+    <div class="celeb-btns">
+      <button class="btn-back" onclick="location='learning-path.html'">← Parcours</button>
+      <button class="btn-next" id="btnNextLecon" onclick="goNext()">Leçon suivante →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SLUG = new URLSearchParams(location.search).get('id');
+const ORDER = ['triangle-quelconque','triangle-equilateral','triangle-isocele','triangle-rectangle','carre','rectangle','parallelogramme','losange','trapeze','cercle','disque','pythagore','thales'];
+const NAMES = {'triangle-quelconque':'Triangle quelconque','triangle-equilateral':'Triangle équilatéral','triangle-isocele':'Triangle isocèle','triangle-rectangle':'Triangle rectangle','carre':'Carré','rectangle':'Rectangle','parallelogramme':'Parallélogramme','losange':'Losange','trapeze':'Trapèze','cercle':'Cercle','disque':'Disque','pythagore':'Théorème de Pythagore','thales':'Théorème de Thalès'};
+const THEO_DATA = {
+  pythagore:{nom:'Théorème de Pythagore',description:'Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés.',formule:'a² + b² = c²',proprietes:['S\'applique uniquement aux triangles rectangles','c est l\'hypoténuse (côté le plus long)','Permet de calculer un côté manquant']},
+  thales:{nom:'Théorème de Thalès',description:'Si une droite est parallèle à un côté d\'un triangle et coupe les deux autres côtés, alors elle les coupe en segments proportionnels.',formule:'AD/AB = AE/AC = DE/BC',proprietes:['Les droites (DE) et (BC) doivent être parallèles','Permet de calculer des longueurs inconnues','Réciproque : si les rapports sont égaux, les droites sont parallèles']}
+};
+
+let FORME=null, EXERCICES=[], STEP=0, SCORE=0, TOTAL=0, ATTEMPTS={}, HAS_INTER=false;
+
+function getProgress(){return JSON.parse(localStorage.getItem('geocollege_progress')||'{}')}
+function setProgress(slug,data){const p=getProgress();p[slug]={...p[slug],...data};localStorage.setItem('geocollege_progress',JSON.stringify(p))}
+
+async function init(){
+  if(!SLUG){location='learning-path.html';return}
+  document.getElementById('navTitle').textContent=NAMES[SLUG]||SLUG;
+  document.title=(NAMES[SLUG]||SLUG)+' — GéoCollège';
+  // Load forme data
+  if(!THEO_DATA[SLUG]){
+    try{const r=await fetch('data/formes.json');const all=await r.json();FORME=all.find(f=>f.slug===SLUG)}catch(e){}
+  }
+  // Load exercises
+  try{const r=await fetch('data/exercices.json');const all=await r.json();EXERCICES=all.filter(e=>{const s=SLUG.replace(/-/g,' ').toLowerCase();return(e.forme||'').toLowerCase().includes(s)||(e.slug||'')==SLUG||(e.forme_slug||'')==SLUG}).slice(0,5)}catch(e){}
+  if(!EXERCICES.length){
+    // Generate basic exercises
+    if(FORME&&FORME.formules){
+      FORME.formules.forEach((f,i)=>{
+        if(f.exemple&&f.exemple.resultat){
+          const vals=Object.entries(f.exemple).filter(([k])=>k!=='resultat').map(([k,v])=>`${k} = ${v}`).join(', ');
+          EXERCICES.push({type:'qcm',enonce:`${f.type} : Si ${vals}, quelle est la valeur ?`,options:[f.exemple.resultat,'42 cm²','15 cm','100 cm²'],reponse:0,explication:`Formule : ${f.formule}`});
+        }
+      });
+    }
+  }
+  TOTAL=EXERCICES.length||1;
+  // Check if interactive makes sense (shapes only)
+  HAS_INTER=!!FORME&&['triangle','quadrilatere'].includes(FORME.categorie);
+  if(!HAS_INTER){document.getElementById('dotInteractif').style.display='none';document.querySelectorAll('.step-line')[0].style.display='none'}
+  setProgress(SLUG,{statut:'en_cours',started_at:new Date().toISOString()});
+  render();
+}
+
+function totalSteps(){return HAS_INTER?4:3}
+function actualStep(){return HAS_INTER?STEP:STEP>=1?STEP+1:STEP}
+
+function render(){
+  const mc=document.getElementById('main');
+  const dots=document.querySelectorAll('.step-dot');
+  const lines=document.querySelectorAll('.step-line');
+  const as=actualStep();
+  dots.forEach((d,i)=>{d.classList.remove('active','done');if(i<as)d.classList.add('done');if(i===as)d.classList.add('active')});
+  lines.forEach((l,i)=>l.classList.toggle('done',i<as));
+  document.getElementById('btnBack').style.display=STEP>0?'inline-block':'none';
+  document.getElementById('stepLabel').textContent=`Étape ${STEP+1}/${totalSteps()}`;
+  const btn=document.getElementById('btnNext');
+
+  if(STEP===0){renderCours(mc);btn.textContent='Suivant →';btn.disabled=false;btn.onclick=next}
+  else if(STEP===1&&HAS_INTER){renderInteractif(mc);btn.textContent='Suivant →';btn.disabled=false;btn.onclick=next}
+  else if((STEP===1&&!HAS_INTER)||(STEP===2&&HAS_INTER)){renderExercices(mc);btn.textContent='Valider';btn.disabled=true;btn.onclick=null}
+  else{renderFiche(mc);btn.textContent='Terminer la leçon ✅';btn.disabled=false;btn.onclick=finish}
+  window.scrollTo(0,0);
+}
+
+function renderCours(el){
+  let h='<div class="card"><h2>'+(NAMES[SLUG]||SLUG)+'</h2>';
+  if(FORME){
+    if(FORME.svg)h+='<div class="fig-wrap"><svg viewBox="'+(FORME.svg.viewBox||'0 0 120 120')+'">'+FORME.svg.elements+'</svg></div>';
+    h+='<p>'+FORME.description+'</p>';
+    if(FORME.proprietes&&FORME.proprietes.length){h+='<h3>Propriétés</h3><ul>';FORME.proprietes.forEach(p=>h+='<li>'+p+'</li>');h+='</ul>'}
+    if(FORME.formules)FORME.formules.forEach(f=>{
+      h+='<div class="formula-box">'+f.type+' = '+f.formule+'</div>';
+      if(f.exemple&&f.exemple.resultat){
+        const vals=Object.entries(f.exemple).filter(([k])=>k!=='resultat');
+        if(vals.length)h+='<p style="font-size:13px;color:var(--muted)">Exemple : '+vals.map(([k,v])=>k+'='+v).join(', ')+' → <strong>'+f.exemple.resultat+'</strong></p>';
+      }
+    });
+  } else if(THEO_DATA[SLUG]){
+    const t=THEO_DATA[SLUG];
+    h+='<p>'+t.description+'</p>';
+    h+='<div class="formula-box">'+t.formule+'</div>';
+    h+='<h3>Points clés</h3><ul>';t.proprietes.forEach(p=>h+='<li>'+p+'</li>');h+='</ul>';
+  } else {
+    h+='<p>Contenu de la leçon : <strong>'+SLUG+'</strong></p>';
+  }
+  h+='</div>';el.innerHTML=h;
+}
+
+function renderInteractif(el){
+  el.innerHTML='<div class="card"><h2>🎛️ Construction Interactive</h2><p>Explore la forme en manipulant le constructeur interactif.</p><iframe src="constructeur.html" style="width:100%;height:480px;border:none;border-radius:12px;margin-top:12px"></iframe></div>';
+}
+
+function renderExercices(el){
+  SCORE=0;ATTEMPTS={};
+  let h='<div class="score-bar" id="scoreBar">0 / '+TOTAL+' réussis</div>';
+  if(!EXERCICES.length){
+    h+='<div class="card"><p>Aucun exercice disponible pour cette leçon. Clique suivant.</p></div>';
+    el.innerHTML=h;
+    const btn=document.getElementById('btnNext');btn.disabled=false;btn.textContent='Suivant →';btn.onclick=()=>{STEP=HAS_INTER?3:2;render()};
+    return;
+  }
+  EXERCICES.forEach((ex,i)=>{
+    h+='<div class="ex-card" id="ex'+i+'"><div class="ex-num">Exercice '+(i+1)+'/'+TOTAL+'</div>';
+    h+='<div class="ex-q">'+(ex.enonce||ex.question||'Question '+i)+'</div>';
+    if(ex.type==='qcm'||ex.options){
+      h+='<div class="qcm-grid">';
+      (ex.options||[]).forEach((o,oi)=>h+='<button class="qcm-btn" onclick="checkQCM('+i+','+oi+')">'+o+'</button>');
+      h+='</div>';
+    } else {
+      h+='<div class="calc-wrap"><input class="calc-input" id="inp'+i+'" inputmode="decimal" placeholder="Ta réponse..."><button class="btn-check" onclick="checkCalc('+i+')">Vérifier</button></div>';
+    }
+    h+='<div class="hint" id="hint'+i+'">💡 '+(ex.indice||ex.hint||'Revois la formule dans le cours.')+'</div>';
+    h+='<div class="fb" id="fb'+i+'"></div></div>';
+  });
+  el.innerHTML=h;
+}
+
+function checkQCM(idx,chosen){
+  const ex=EXERCICES[idx],card=document.getElementById('ex'+idx);
+  const btns=card.querySelectorAll('.qcm-btn');
+  const correct=parseInt(ex.reponse||ex.answer||0);
+  if(!ATTEMPTS[idx])ATTEMPTS[idx]=0;ATTEMPTS[idx]++;
+  btns.forEach((b,i)=>{b.classList.add('disabled');if(i===correct)b.classList.add('correct');if(i===chosen&&i!==correct)b.classList.add('wrong')});
+  const fb=document.getElementById('fb'+idx);
+  if(chosen===correct){SCORE++;fb.className='fb show ok';fb.textContent='✅ Correct ! '+(ex.explication||'')}
+  else{fb.className='fb show ko';fb.textContent='❌ '+(ex.explication||'Mauvaise réponse.')}
+  if(ATTEMPTS[idx]>=2)document.getElementById('hint'+idx).classList.add('show');
+  updateScore();
+}
+
+function checkCalc(idx){
+  const ex=EXERCICES[idx],input=document.getElementById('inp'+idx);
+  const val=parseFloat(input.value);if(isNaN(val))return;
+  if(!ATTEMPTS[idx])ATTEMPTS[idx]=0;ATTEMPTS[idx]++;
+  const ans=parseFloat(ex.reponse||ex.answer||0);
+  const tol=ex.tolerance||0.5;
+  const ok=Math.abs(val-ans)<=tol;
+  const fb=document.getElementById('fb'+idx);
+  if(ok){SCORE++;input.classList.add('correct');input.disabled=true;fb.className='fb show ok';fb.textContent='✅ Correct !'}
+  else{input.classList.add('wrong');fb.className='fb show ko';fb.textContent='❌ Réponse attendue : '+ans;if(ATTEMPTS[idx]>=2){document.getElementById('hint'+idx).classList.add('show');input.disabled=true}else{setTimeout(()=>{input.classList.remove('wrong');fb.className='fb';input.value=''},1200);return}}
+  updateScore();
+}
+
+function updateScore(){
+  const answered=Object.keys(ATTEMPTS).length;
+  document.getElementById('scoreBar').textContent=SCORE+' / '+TOTAL+' réussis';
+  if(answered>=TOTAL){
+    const btn=document.getElementById('btnNext');
+    const pct=Math.round((SCORE/TOTAL)*100);
+    if(pct<60){btn.textContent='🔄 Revoir le cours';btn.disabled=false;btn.onclick=()=>{STEP=0;render()}}
+    else{btn.textContent='Suivant → Fiche';btn.disabled=false;btn.onclick=()=>{STEP=HAS_INTER?3:2;render()}}
+  }
+}
+
+function renderFiche(el){
+  const pct=TOTAL>0?Math.round((SCORE/TOTAL)*100):100;
+  let h='<div class="card"><h2>📄 Fiche Récapitulative</h2>';
+  if(FORME){
+    if(FORME.svg)h+='<div class="fig-wrap"><svg viewBox="'+(FORME.svg.viewBox||'0 0 120 120')+'">'+FORME.svg.elements+'</svg></div>';
+    h+='<p><strong>'+FORME.nom+'</strong> — '+FORME.description+'</p>';
+    if(FORME.formules)FORME.formules.forEach(f=>h+='<div class="formula-box">'+f.type+' = '+f.formule+'</div>');
+  } else if(THEO_DATA[SLUG]){
+    const t=THEO_DATA[SLUG];
+    h+='<p><strong>'+t.nom+'</strong> — '+t.description+'</p>';
+    h+='<div class="formula-box">'+t.formule+'</div>';
+  }
+  h+='<div style="margin-top:16px;padding:14px;background:var(--green-l);border-radius:12px;text-align:center;"><strong>Score : '+SCORE+'/'+TOTAL+' ('+pct+'%)</strong></div>';
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function finish(){
+  const pct=TOTAL>0?Math.round((SCORE/TOTAL)*100):100;
+  setProgress(SLUG,{statut:'complete',score:pct,completed_at:new Date().toISOString()});
+  // Unlock next
+  const idx=ORDER.indexOf(SLUG);
+  if(idx>=0&&idx<ORDER.length-1){const ns=ORDER[idx+1];const p=getProgress();if(!p[ns])setProgress(ns,{statut:''})}
+  document.getElementById('celebPts').textContent='Score : '+pct+'% — +'+(Math.round(pct/10)*10)+' points !';
+  document.getElementById('celeb').classList.add('show');
+  // Confetti
+  const colors=['#16a34a','#2563eb','#dc2626','#eab308','#7c3aed'];
+  for(let i=0;i<30;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDelay=Math.random()*2+'s';c.style.width=(6+Math.random()*8)+'px';c.style.height=c.style.width;document.body.appendChild(c);setTimeout(()=>c.remove(),5000)}
+}
+
+function goNext(){
+  const idx=ORDER.indexOf(SLUG);
+  if(idx>=0&&idx<ORDER.length-1)location='lecon.html?id='+ORDER[idx+1];
+  else location='learning-path.html';
+}
+
+function next(){STEP++;render()}
+function prev(){if(STEP>0){STEP--;render()}}
+
+init();
+</script>
+<script src="geo-auth.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>

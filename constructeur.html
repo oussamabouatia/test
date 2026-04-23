@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>GéoCollège — Constructeur de Triangles</title>
+  <meta name="description"
+    content="Constructeur interactif de triangles - manipulez les sommets et découvrez les propriétés géométriques en temps réel." />
+  <style>
+    :root {
+      --green: #16a34a;
+      --green-d: #14532d;
+      --green-l: #dcfce7;
+      --green-m: #4ade80;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --muted2: #94a3b8;
+      --amber-l: #fef3c7;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, .08)
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px
+    }
+
+    .nav-logo {
+      font-weight: 900;
+      font-size: 17px;
+      color: var(--green-d);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px
+    }
+
+    .nav-a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 7px 16px;
+      border-radius: 99px;
+      transition: all .18s
+    }
+
+    .nav-a:hover {
+      background: var(--green-l);
+      color: var(--green-d)
+    }
+
+    .nav-a.active {
+      background: var(--green);
+      color: #fff
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text)
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #f8fafc);
+      padding: 40px 24px 32px;
+      text-align: center;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-l);
+      color: var(--green-d);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 99px;
+      border: 1px solid #bbf7d0;
+      margin-bottom: 14px
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%
+    }
+
+    .hero h1 {
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 900;
+      margin-bottom: 8px
+    }
+
+    .hero h1 span {
+      color: var(--green)
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 520px;
+      margin: 0 auto
+    }
+
+    .main-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start
+    }
+
+    .canvas-wrap {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative
+    }
+
+    .canvas-toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      align-items: center;
+      background: var(--surface2)
+    }
+
+    .tb-btn {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .tb-btn:hover {
+      border-color: var(--green);
+      color: var(--green)
+    }
+
+    .tb-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff
+    }
+
+    .tb-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--border)
+    }
+
+    .tb-slider {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600
+    }
+
+    .tb-slider input[type=range] {
+      width: 80px;
+      accent-color: var(--green)
+    }
+
+    #geoCanvas {
+      display: block;
+      width: 100%;
+      cursor: grab;
+      touch-action: none;
+      background: #fff
+    }
+
+    #geoCanvas.grabbing {
+      cursor: grabbing
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow)
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--green-l);
+      color: var(--green-d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .card-body {
+      padding: 16px 18px
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px
+    }
+
+    .measure-item {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+      transition: background .3s
+    }
+
+    .measure-item.flash {
+      background: var(--amber-l)
+    }
+
+    .measure-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 4px
+    }
+
+    .measure-value {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green-d)
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .info-row:last-child {
+      border-bottom: none
+    }
+
+    .info-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .info-val {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .pyth-block {
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      transition: background .4s;
+      background: var(--surface2)
+    }
+
+    .pyth-block.right-triangle {
+      background: var(--green-l)
+    }
+
+    .pyth-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .pyth-result {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .pyth-result.is-right {
+      background: var(--green);
+      color: #fff
+    }
+
+    .pyth-result.not-right {
+      background: var(--surface2);
+      color: var(--muted)
+    }
+
+    .class-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .class-badge {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      transition: all .3s
+    }
+
+    .class-badge.active {
+      background: var(--green-l);
+      color: var(--green-d);
+      border-color: #86efac
+    }
+
+    footer {
+      background: var(--green-d);
+      color: #a7f3d0;
+      padding: 28px 24px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 40px
+    }
+
+    footer strong {
+      color: #fff
+    }
+
+    @media(max-width:860px) {
+      .main-layout {
+        grid-template-columns: 1fr
+      }
+
+      .nav-links {
+        display: none
+      }
+
+      .nav-toggle {
+        display: block
+      }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow)
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .card {
+      animation: slideUp .35s ease both
+    }
+
+    .card:nth-child(2) {
+      animation-delay: .06s
+    }
+
+    .card:nth-child(3) {
+      animation-delay: .12s
+    }
+
+    .card:nth-child(4) {
+      animation-delay: .18s
+    }
+
+    .card:nth-child(5) {
+      animation-delay: .24s
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a class="nav-logo" href="index.html"><span class="dot"></span>GéoCollège</a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-a" style="font-weight:700;">📚 Dictionnaire</a>
+      <a href="learning-path.html" class="nav-a" style="font-weight:700;">🎯 Mon Parcours</a>
+      <div style="position:relative;display:inline-block;" id="nav-more-wrap">
+        <button style="cursor:pointer;background:none;border:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);padding:7px 12px;border-radius:99px;" onclick="event.stopPropagation();var dd=document.getElementById('nav-more-dd');dd.style.display=dd.style.display==='block'?'none':'block';">+ Plus</button>
+        <div id="nav-more-dd" style="display:none;position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:180px;z-index:300;">
+          <a href="formes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">📐 Formes</a>
+          <a href="theoremes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">📏 Théorèmes</a>
+          <a href="exercices.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">✏️ Exercices</a>
+          <a href="constructeur.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--green-d);text-decoration:none;border-radius:8px;background:var(--green-l);font-weight:600;">🎛️ Constructeur</a>
+        </div>
+      </div>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+    <script>document.addEventListener('click',e=>{const w=document.getElementById('nav-more-wrap');const dd=document.getElementById('nav-more-dd');if(dd&&w&&!w.contains(e.target))dd.style.display='none';});</script>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge">Constructeur Interactif</div>
+    <h1>Manipule un <span>triangle</span></h1>
+    <p>Déplace les sommets et découvre en temps réel les côtés, angles, aire et la relation de Pythagore.</p>
+  </div>
+
+  <div class="main-layout">
+    <div class="canvas-wrap">
+      <div class="canvas-toolbar">
+        <button class="tb-btn" id="btnReset" onclick="resetTriangle()">↻ Réinitialiser</button>
+        <button class="tb-btn" id="btnRight" onclick="setRightTriangle()">◣ Rectangle</button>
+        <button class="tb-btn" id="btnEqui" onclick="setEquilateral()">△ Équilatéral</button>
+        <div class="tb-sep"></div>
+        <div class="tb-slider">
+          <span>Grille</span>
+          <input type="range" id="gridSlider" min="0" max="100" value="30"
+            oninput="gridOpacity=this.value/100;render()" />
+        </div>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" id="btnPyth" onclick="togglePyth()">π Pythagore</button>
+        <button class="tb-btn" id="btnCopy" onclick="copyMeasurements()">📋 Copier</button>
+      </div>
+      <canvas id="geoCanvas" width="700" height="500"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="card" id="cardSides">
+        <div class="card-header">
+          <div class="card-icon">📐</div>
+          <div class="card-title">Côtés</div>
+        </div>
+        <div class="card-body">
+          <div class="measure-grid">
+            <div class="measure-item" id="mA">
+              <div class="measure-label">a</div>
+              <div class="measure-value" id="valA">0</div>
+            </div>
+            <div class="measure-item" id="mB">
+              <div class="measure-label">b</div>
+              <div class="measure-value" id="valB">0</div>
+            </div>
+            <div class="measure-item" id="mC">
+              <div class="measure-label">c</div>
+              <div class="measure-value" id="valC">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardAngles">
+        <div class="card-header">
+          <div class="card-icon">📏</div>
+          <div class="card-title">Angles</div>
+        </div>
+        <div class="card-body">
+          <div class="measure-grid">
+            <div class="measure-item" id="mAngA">
+              <div class="measure-label">A</div>
+              <div class="measure-value" id="valAngA">0°</div>
+            </div>
+            <div class="measure-item" id="mAngB">
+              <div class="measure-label">B</div>
+              <div class="measure-value" id="valAngB">0°</div>
+            </div>
+            <div class="measure-item" id="mAngC">
+              <div class="measure-label">C</div>
+              <div class="measure-value" id="valAngC">0°</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardMetrics">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Mesures</div>
+        </div>
+        <div class="card-body">
+          <div class="info-row"><span class="info-label">Périmètre</span><span class="info-val" id="valPerim">0
+              cm</span></div>
+          <div class="info-row"><span class="info-label">Aire</span><span class="info-val" id="valArea">0 cm²</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardPyth" style="display:none">
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Pythagore</div>
+        </div>
+        <div class="card-body">
+          <div class="pyth-block" id="pythBlock">
+            <div class="pyth-row"><span>a²</span><span id="valA2">0</span></div>
+            <div class="pyth-row"><span>b²</span><span id="valB2">0</span></div>
+            <div class="pyth-row"><span>c²</span><span id="valC2">0</span></div>
+            <div class="pyth-row" style="border-top:1.5px solid var(--border);margin-top:6px;padding-top:8px"><span>a² +
+                b²</span><span id="valAB2">0</span></div>
+            <div class="pyth-result not-right" id="pythResult">Non rectangle</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardClass">
+        <div class="card-header">
+          <div class="card-icon">🏷️</div>
+          <div class="card-title">Classification</div>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom:10px">
+            <div class="measure-label" style="margin-bottom:8px">Par côtés</div>
+            <div class="class-badges"><span class="class-badge" id="badgeEqui">Équilatéral</span><span
+                class="class-badge" id="badgeIso">Isocèle</span><span class="class-badge" id="badgeScal">Scalène</span>
+            </div>
+          </div>
+          <div>
+            <div class="measure-label" style="margin-bottom:8px">Par angles</div>
+            <div class="class-badges"><span class="class-badge" id="badgeAcute">Acutangle</span><span
+                class="class-badge" id="badgeRight">Rectangle</span><span class="class-badge"
+                id="badgeObtuse">Obtusangle</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <strong>GéoCollège</strong>
+    <p style="margin-top:6px">Projet CRMEF Mathématiques · Géométrie collège Maroc</p>
+  </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    //  STATE
+    // ═══════════════════════════════════════════════════════
+    var gridOpacity = 0.3;
+    var showPyth = false;
+    var prevValues = {};
+    var canvas = document.getElementById('geoCanvas');
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var SCALE = 50; // 50px = 1cm
+
+    // ═══════════════════════════════════════════════════════
+    //  TRIANGLE CLASS
+    // ═══════════════════════════════════════════════════════
+    class Triangle {
+      constructor(p1, p2, p3) {
+        this.points = [
+          { x: p1.x, y: p1.y },
+          { x: p2.x, y: p2.y },
+          { x: p3.x, y: p3.y }
+        ];
+      }
+      dist(a, b) {
+        return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+      }
+      getSides() {
+        var p = this.points;
+        return {
+          a: this.dist(p[1], p[2]),
+          b: this.dist(p[0], p[2]),
+          c: this.dist(p[0], p[1])
+        };
+      }
+      getSidesCm() {
+        var s = this.getSides();
+        return { a: s.a / SCALE, b: s.b / SCALE, c: s.c / SCALE };
+      }
+      getAngles() {
+        var s = this.getSidesCm();
+        var a = s.a, b = s.b, c = s.c;
+        var A = Math.acos(Math.max(-1, Math.min(1, (b * b + c * c - a * a) / (2 * b * c))));
+        var B = Math.acos(Math.max(-1, Math.min(1, (a * a + c * c - b * b) / (2 * a * c))));
+        var C = Math.PI - A - B;
+        return {
+          A: A * 180 / Math.PI,
+          B: B * 180 / Math.PI,
+          C: C * 180 / Math.PI
+        };
+      }
+      getArea() {
+        var s = this.getSidesCm();
+        var sp = (s.a + s.b + s.c) / 2;
+        var val = sp * (sp - s.a) * (sp - s.b) * (sp - s.c);
+        return Math.sqrt(Math.max(0, val));
+      }
+      getPerimeter() {
+        var s = this.getSidesCm();
+        return s.a + s.b + s.c;
+      }
+      isPythagorean(tol) {
+        tol = tol || 0.5;
+        var s = this.getSidesCm();
+        var arr = [s.a, s.b, s.c].sort(function (x, y) { return x - y; });
+        return Math.abs(arr[0] * arr[0] + arr[1] * arr[1] - arr[2] * arr[2]) <= tol;
+      }
+      getType() {
+        var s = this.getSidesCm();
+        var ang = this.getAngles();
+        var tol = 0.5;
+        var sideType, angleType;
+        if (Math.abs(s.a - s.b) < 0.3 && Math.abs(s.b - s.c) < 0.3) sideType = 'equilateral';
+        else if (Math.abs(s.a - s.b) < 0.3 || Math.abs(s.b - s.c) < 0.3 || Math.abs(s.a - s.c) < 0.3) sideType = 'isosceles';
+        else sideType = 'scalene';
+        var mx = Math.max(ang.A, ang.B, ang.C);
+        if (Math.abs(mx - 90) < 1.5) angleType = 'right';
+        else if (mx > 90) angleType = 'obtuse';
+        else angleType = 'acute';
+        return { sides: sideType, angles: angleType };
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  CANVAS RENDERER
+    // ═══════════════════════════════════════════════════════
+    class CanvasRenderer {
+      constructor(canvas, ctx) {
+        this.canvas = canvas;
+        this.ctx = ctx;
+      }
+      clear() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      }
+      drawGrid() {
+        if (gridOpacity <= 0.01) return;
+        var c = this.ctx, w = this.canvas.width / dpr, h = this.canvas.height / dpr;
+        c.save();
+        c.strokeStyle = 'rgba(148,163,184,' + gridOpacity * 0.3 + ')';
+        c.lineWidth = 0.5;
+        for (var x = 0; x <= w; x += 50) {
+          c.beginPath(); c.moveTo(x, 0); c.lineTo(x, h); c.stroke();
+        }
+        for (var y = 0; y <= h; y += 50) {
+          c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke();
+        }
+        c.restore();
+      }
+      drawSides(tri) {
+        var c = this.ctx, p = tri.points, sides = tri.getSidesCm();
+        c.save();
+        c.strokeStyle = '#16a34a';
+        c.lineWidth = 3;
+        c.lineJoin = 'round';
+        c.beginPath();
+        c.moveTo(p[0].x, p[0].y);
+        c.lineTo(p[1].x, p[1].y);
+        c.lineTo(p[2].x, p[2].y);
+        c.closePath();
+        c.fillStyle = 'rgba(22,163,74,0.04)';
+        c.fill();
+        c.stroke();
+        c.restore();
+        var labels = [
+          { name: 'a', val: sides.a, p1: p[1], p2: p[2] },
+          { name: 'b', val: sides.b, p1: p[0], p2: p[2] },
+          { name: 'c', val: sides.c, p1: p[0], p2: p[1] }
+        ];
+        c.save();
+        c.font = '600 12px "Segoe UI"';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        labels.forEach(function (l) {
+          var mx = (l.p1.x + l.p2.x) / 2;
+          var my = (l.p1.y + l.p2.y) / 2;
+          var dx = l.p2.x - l.p1.x, dy = l.p2.y - l.p1.y;
+          var len = Math.sqrt(dx * dx + dy * dy) || 1;
+          var nx = -dy / len * 18, ny = dx / len * 18;
+          var cx = (p[0].x + p[1].x + p[2].x) / 3;
+          var cy = (p[0].y + p[1].y + p[2].y) / 3;
+          var testX = mx + nx, testY = my + ny;
+          var d1 = (testX - cx) * (testX - cx) + (testY - cy) * (testY - cy);
+          var d2 = (mx - nx - cx) * (mx - nx - cx) + (my - ny - cy) * (my - ny - cy);
+          if (d1 < d2) { nx = -nx; ny = -ny; }
+          var lx = mx + nx, ly = my + ny;
+          c.fillStyle = 'rgba(255,255,255,0.85)';
+          var txt = l.name + ' = ' + l.val.toFixed(2);
+          var tw = c.measureText(txt).width;
+          c.fillRect(lx - tw / 2 - 4, ly - 8, tw + 8, 16);
+          c.fillStyle = '#14532d';
+          c.fillText(txt, lx, ly);
+        });
+        c.restore();
+      }
+      drawAngles(tri) {
+        var c = this.ctx, p = tri.points, ang = tri.getAngles();
+        var colors = ['#16a34a', '#2563eb', '#d97706'];
+        var names = ['A', 'B', 'C'];
+        var angles = [ang.A, ang.B, ang.C];
+        for (var i = 0; i < 3; i++) {
+          var curr = p[i];
+          var prev = p[(i + 2) % 3];
+          var next = p[(i + 1) % 3];
+          var a1 = Math.atan2(prev.y - curr.y, prev.x - curr.x);
+          var a2 = Math.atan2(next.y - curr.y, next.x - curr.x);
+          var r = 28;
+          c.save();
+          c.strokeStyle = colors[i];
+          c.lineWidth = 2;
+          c.globalAlpha = 0.5;
+          c.beginPath();
+          var startA = a1, endA = a2;
+          var diff = endA - startA;
+          while (diff > Math.PI) diff -= 2 * Math.PI;
+          while (diff < -Math.PI) diff += 2 * Math.PI;
+          if (diff > 0) { c.arc(curr.x, curr.y, r, startA, startA + diff); }
+          else { c.arc(curr.x, curr.y, r, startA, startA + diff, true); }
+          c.stroke();
+          c.globalAlpha = 0.1;
+          c.fillStyle = colors[i];
+          c.beginPath();
+          c.moveTo(curr.x, curr.y);
+          if (diff > 0) { c.arc(curr.x, curr.y, r, startA, startA + diff); }
+          else { c.arc(curr.x, curr.y, r, startA, startA + diff, true); }
+          c.closePath();
+          c.fill();
+          c.restore();
+          var midA = startA + diff / 2;
+          var lx = curr.x + Math.cos(midA) * (r + 18);
+          var ly = curr.y + Math.sin(midA) * (r + 18);
+          c.save();
+          c.font = '700 11px "Segoe UI"';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.fillStyle = colors[i];
+          c.fillText(names[i] + '=' + angles[i].toFixed(1) + '°', lx, ly);
+          c.restore();
+        }
+      }
+      drawRightAngleMarker(tri) {
+        if (!tri.isPythagorean(1.5)) return;
+        var ang = tri.getAngles();
+        var p = tri.points;
+        var idx = -1;
+        if (Math.abs(ang.A - 90) < 1.5) idx = 0;
+        else if (Math.abs(ang.B - 90) < 1.5) idx = 1;
+        else if (Math.abs(ang.C - 90) < 1.5) idx = 2;
+        if (idx < 0) return;
+        var curr = p[idx];
+        var prev = p[(idx + 2) % 3];
+        var next = p[(idx + 1) % 3];
+        var sz = 14;
+        var d1x = prev.x - curr.x, d1y = prev.y - curr.y;
+        var l1 = Math.sqrt(d1x * d1x + d1y * d1y) || 1;
+        d1x /= l1; d1y /= l1;
+        var d2x = next.x - curr.x, d2y = next.y - curr.y;
+        var l2 = Math.sqrt(d2x * d2x + d2y * d2y) || 1;
+        d2x /= l2; d2y /= l2;
+        var c = this.ctx;
+        c.save();
+        c.strokeStyle = '#dc2626';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(curr.x + d1x * sz, curr.y + d1y * sz);
+        c.lineTo(curr.x + d1x * sz + d2x * sz, curr.y + d1y * sz + d2y * sz);
+        c.lineTo(curr.x + d2x * sz, curr.y + d2y * sz);
+        c.stroke();
+        c.restore();
+      }
+      drawEqualMarks(tri) {
+        var type = tri.getType();
+        if (type.sides !== 'equilateral' && type.sides !== 'isosceles') return;
+        var c = this.ctx, p = tri.points, sides = tri.getSidesCm();
+        var pairs = [
+          { p1: p[1], p2: p[2], len: sides.a },
+          { p1: p[0], p2: p[2], len: sides.b },
+          { p1: p[0], p2: p[1], len: sides.c }
+        ];
+        var sorted = [sides.a, sides.b, sides.c].sort(function (x, y) { return x - y; });
+        c.save();
+        c.strokeStyle = '#16a34a';
+        c.lineWidth = 2;
+        pairs.forEach(function (s) {
+          var marks = 0;
+          if (type.sides === 'equilateral') marks = 1;
+          else if (Math.abs(s.len - sorted[0]) < 0.3 && Math.abs(sorted[0] - sorted[1]) < 0.3) marks = 2;
+          else if (Math.abs(s.len - sorted[1]) < 0.3 && Math.abs(sorted[1] - sorted[0]) < 0.3) marks = 2;
+          if (marks === 0) return;
+          var mx = (s.p1.x + s.p2.x) / 2;
+          var my = (s.p1.y + s.p2.y) / 2;
+          var dx = s.p2.x - s.p1.x, dy = s.p2.y - s.p1.y;
+          var l = Math.sqrt(dx * dx + dy * dy) || 1;
+          var nx = -dy / l, ny = dx / l;
+          for (var m = 0; m < marks; m++) {
+            var off = (m - (marks - 1) / 2) * 6;
+            var px = mx + (dx / l) * off;
+            var py = my + (dy / l) * off;
+            c.beginPath();
+            c.moveTo(px + nx * 6, py + ny * 6);
+            c.lineTo(px - nx * 6, py - ny * 6);
+            c.stroke();
+          }
+        });
+        c.restore();
+      }
+      drawPoints(tri) {
+        var c = this.ctx, p = tri.points;
+        var names = ['A', 'B', 'C'];
+        for (var i = 0; i < 3; i++) {
+          c.save();
+          c.shadowColor = 'rgba(22,163,74,0.35)';
+          c.shadowBlur = 10;
+          c.fillStyle = '#16a34a';
+          c.beginPath();
+          c.arc(p[i].x, p[i].y, 9, 0, Math.PI * 2);
+          c.fill();
+          c.shadowBlur = 0;
+          c.fillStyle = '#fff';
+          c.beginPath();
+          c.arc(p[i].x, p[i].y, 4, 0, Math.PI * 2);
+          c.fill();
+          c.font = '800 13px "Segoe UI"';
+          c.textAlign = 'center';
+          c.fillStyle = '#14532d';
+          c.fillText(names[i], p[i].x, p[i].y - 18);
+          c.restore();
+        }
+      }
+      draw(tri) {
+        this.clear();
+        this.ctx.save();
+        this.ctx.scale(dpr, dpr);
+        this.drawGrid();
+        this.drawSides(tri);
+        this.drawAngles(tri);
+        this.drawRightAngleMarker(tri);
+        this.drawEqualMarks(tri);
+        this.drawPoints(tri);
+        this.ctx.restore();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  DRAG CONTROLLER
+    // ═══════════════════════════════════════════════════════
+    class DragController {
+      constructor(canvas, triangle, onMove) {
+        this.canvas = canvas;
+        this.triangle = triangle;
+        this.onMove = onMove;
+        this.dragging = -1;
+        this.init();
+      }
+      init() {
+        this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.onMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
+        this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+        this.canvas.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
+        this.canvas.addEventListener('touchend', this.onTouchEnd.bind(this));
+      }
+      getPos(e) {
+        var rect = this.canvas.getBoundingClientRect();
+        return {
+          x: (e.clientX - rect.left) * (this.canvas.width / dpr / rect.width),
+          y: (e.clientY - rect.top) * (this.canvas.height / dpr / rect.height)
+        };
+      }
+      findNearest(x, y) {
+        var best = -1, bestD = 30;
+        this.triangle.points.forEach(function (p, i) {
+          var d = Math.sqrt((p.x - x) ** 2 + (p.y - y) ** 2);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        return best;
+      }
+      constrain(x, y) {
+        var w = this.canvas.width / dpr, h = this.canvas.height / dpr;
+        return { x: Math.max(12, Math.min(w - 12, x)), y: Math.max(12, Math.min(h - 12, y)) };
+      }
+      onMouseDown(e) {
+        var pos = this.getPos(e);
+        this.dragging = this.findNearest(pos.x, pos.y);
+        if (this.dragging >= 0) this.canvas.classList.add('grabbing');
+      }
+      onMouseMove(e) {
+        var pos = this.getPos(e);
+        if (this.dragging >= 0) {
+          var cp = this.constrain(pos.x, pos.y);
+          this.triangle.points[this.dragging].x = cp.x;
+          this.triangle.points[this.dragging].y = cp.y;
+          this.onMove();
+        } else {
+          var near = this.findNearest(pos.x, pos.y);
+          this.canvas.style.cursor = near >= 0 ? 'grab' : 'default';
+        }
+      }
+      onMouseUp() {
+        this.dragging = -1;
+        this.canvas.classList.remove('grabbing');
+      }
+      onTouchStart(e) {
+        e.preventDefault();
+        var t = e.touches[0];
+        var pos = this.getPos(t);
+        this.dragging = this.findNearest(pos.x, pos.y);
+      }
+      onTouchMove(e) {
+        e.preventDefault();
+        if (this.dragging < 0) return;
+        var t = e.touches[0];
+        var pos = this.getPos(t);
+        var cp = this.constrain(pos.x, pos.y);
+        this.triangle.points[this.dragging].x = cp.x;
+        this.triangle.points[this.dragging].y = cp.y;
+        this.onMove();
+      }
+      onTouchEnd() {
+        this.dragging = -1;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  UI UPDATE
+    // ═══════════════════════════════════════════════════════
+    function flashEl(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('flash');
+      setTimeout(function () { el.classList.remove('flash'); }, 300);
+    }
+
+    function checkChanged(key, val, elId) {
+      var old = prevValues[key];
+      if (old !== undefined && Math.abs(old - val) > 0.01) flashEl(elId);
+      prevValues[key] = val;
+    }
+
+    function updateUI(tri) {
+      var s = tri.getSidesCm();
+      var ang = tri.getAngles();
+      var area = tri.getArea();
+      var perim = tri.getPerimeter();
+      var type = tri.getType();
+      var isRight = tri.isPythagorean();
+
+      document.getElementById('valA').textContent = s.a.toFixed(2) + ' cm';
+      document.getElementById('valB').textContent = s.b.toFixed(2) + ' cm';
+      document.getElementById('valC').textContent = s.c.toFixed(2) + ' cm';
+      checkChanged('a', s.a, 'mA');
+      checkChanged('b', s.b, 'mB');
+      checkChanged('c', s.c, 'mC');
+
+      document.getElementById('valAngA').textContent = ang.A.toFixed(1) + '°';
+      document.getElementById('valAngB').textContent = ang.B.toFixed(1) + '°';
+      document.getElementById('valAngC').textContent = ang.C.toFixed(1) + '°';
+      checkChanged('angA', ang.A, 'mAngA');
+      checkChanged('angB', ang.B, 'mAngB');
+      checkChanged('angC', ang.C, 'mAngC');
+
+      document.getElementById('valPerim').textContent = perim.toFixed(2) + ' cm';
+      document.getElementById('valArea').textContent = area.toFixed(2) + ' cm²';
+
+      if (showPyth) {
+        var sorted = [s.a, s.b, s.c].sort(function (x, y) { return x - y; });
+        var a2 = sorted[0] * sorted[0], b2 = sorted[1] * sorted[1], c2 = sorted[2] * sorted[2];
+        document.getElementById('valA2').textContent = a2.toFixed(2);
+        document.getElementById('valB2').textContent = b2.toFixed(2);
+        document.getElementById('valC2').textContent = c2.toFixed(2);
+        document.getElementById('valAB2').textContent = (a2 + b2).toFixed(2);
+        var pb = document.getElementById('pythBlock');
+        var pr = document.getElementById('pythResult');
+        if (isRight) {
+          pb.classList.add('right-triangle');
+          pr.className = 'pyth-result is-right';
+          pr.textContent = '✓ Triangle rectangle ! a² + b² = c²';
+        } else {
+          pb.classList.remove('right-triangle');
+          pr.className = 'pyth-result not-right';
+          pr.textContent = 'Non rectangle (a²+b² ≠ c²)';
+        }
+      }
+
+      ['Equi', 'Iso', 'Scal'].forEach(function (n) { document.getElementById('badge' + n).classList.remove('active') });
+      if (type.sides === 'equilateral') document.getElementById('badgeEqui').classList.add('active');
+      else if (type.sides === 'isosceles') document.getElementById('badgeIso').classList.add('active');
+      else document.getElementById('badgeScal').classList.add('active');
+
+      ['Acute', 'Right', 'Obtuse'].forEach(function (n) { document.getElementById('badge' + n).classList.remove('active') });
+      if (type.angles === 'right') document.getElementById('badgeRight').classList.add('active');
+      else if (type.angles === 'obtuse') document.getElementById('badgeObtuse').classList.add('active');
+      else document.getElementById('badgeAcute').classList.add('active');
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  CONTROLS
+    // ═══════════════════════════════════════════════════════
+    function togglePyth() {
+      showPyth = !showPyth;
+      document.getElementById('cardPyth').style.display = showPyth ? 'block' : 'none';
+      document.getElementById('btnPyth').classList.toggle('active', showPyth);
+      if (showPyth) updateUI(triangle);
+    }
+
+    function copyMeasurements() {
+      var s = triangle.getSidesCm(), ang = triangle.getAngles();
+      var txt = 'Triangle — GéoCollège\n';
+      txt += 'Côtés: a=' + s.a.toFixed(2) + ' cm, b=' + s.b.toFixed(2) + ' cm, c=' + s.c.toFixed(2) + ' cm\n';
+      txt += 'Angles: A=' + ang.A.toFixed(1) + '°, B=' + ang.B.toFixed(1) + '°, C=' + ang.C.toFixed(1) + '°\n';
+      txt += 'Périmètre: ' + triangle.getPerimeter().toFixed(2) + ' cm\n';
+      txt += 'Aire: ' + triangle.getArea().toFixed(2) + ' cm²\n';
+      txt += 'Type: ' + triangle.getType().sides + ' / ' + triangle.getType().angles + '\n';
+      txt += 'Rectangle: ' + (triangle.isPythagorean() ? 'Oui' : 'Non');
+      navigator.clipboard.writeText(txt).then(function () {
+        var btn = document.getElementById('btnCopy');
+        btn.textContent = '✓ Copié !';
+        setTimeout(function () { btn.textContent = '📋 Copier'; }, 1500);
+      });
+    }
+
+    function resetTriangle() {
+      var w = canvas.width / dpr, h = canvas.height / dpr;
+      triangle.points[0] = { x: w / 2, y: h * 0.2 };
+      triangle.points[1] = { x: w * 0.25, y: h * 0.75 };
+      triangle.points[2] = { x: w * 0.75, y: h * 0.75 };
+      render();
+    }
+
+    function setRightTriangle() {
+      var w = canvas.width / dpr, h = canvas.height / dpr;
+      var cx = w / 2, cy = h / 2;
+      triangle.points[0] = { x: cx - 150, y: cy + 100 };
+      triangle.points[1] = { x: cx - 150, y: cy - 100 };
+      triangle.points[2] = { x: cx + 50, y: cy + 100 };
+      render();
+    }
+
+    function setEquilateral() {
+      var w = canvas.width / dpr, h = canvas.height / dpr;
+      var cx = w / 2, cy = h / 2, sz = 140;
+      var ht = sz * Math.sqrt(3) / 2;
+      triangle.points[0] = { x: cx, y: cy - ht * 0.6 };
+      triangle.points[1] = { x: cx - sz / 2, y: cy + ht * 0.4 };
+      triangle.points[2] = { x: cx + sz / 2, y: cy + ht * 0.4 };
+      render();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  RESIZE CANVAS
+    // ═══════════════════════════════════════════════════════
+    function resizeCanvas() {
+      var wrap = canvas.parentElement;
+      var w = wrap.clientWidth;
+      var h = Math.min(500, Math.max(350, window.innerHeight * 0.55));
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════════
+    var triangle = new Triangle({ x: 250, y: 80 }, { x: 120, y: 380 }, { x: 500, y: 350 });
+    var renderer = new CanvasRenderer(canvas, ctx);
+
+    function render() {
+      renderer.draw(triangle);
+      updateUI(triangle);
+    }
+
+    resizeCanvas();
+    var drag = new DragController(canvas, triangle, render);
+    resetTriangle();
+
+    window.addEventListener('resize', function () {
+      resizeCanvas();
+      render();
+    });
+
+    // ── Interactive session tracking ──
+    const _sessionStart = Date.now();
+    let _interacted = false;
+    canvas.addEventListener('pointerdown', () => { _interacted = true; });
+
+    function trackConstructeurSession() {
+      if (!_interacted) return;
+      const user = localStorage.getItem('geo_user');
+      if (!user) return;
+      const duration = Math.round((Date.now() - _sessionStart) / 1000);
+      if (duration < 5) return; // ignorer les sessions trop courtes
+      navigator.sendBeacon('api/interactive-session.php',
+        new Blob([JSON.stringify({
+          lesson_id: 'constructeur',
+          success: 1,
+          attempts: 1,
+          duration: duration,
+        })], { type: 'application/json' })
+      );
+    }
+    window.addEventListener('beforeunload', trackConstructeurSession);
+    // Also track after 2 minutes if still on page
+    setTimeout(trackConstructeurSession, 120000);
+
+  </script>
+  <script src="geo-auth.js"></script>
+</body>
+
+</html>

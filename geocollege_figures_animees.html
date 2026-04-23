@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GéoCollège — Figures Animées</title>
+<style>
+  :root {
+    --green:   #16a34a;
+    --green-d: #14532d;
+    --green-l: #dcfce7;
+    --green-m: #bbf7d0;
+    --bg:      #f8fafc;
+    --surface: #ffffff;
+    --border:  #e2e8f0;
+    --text:    #0f172a;
+    --muted:   #64748b;
+    --radius:  16px;
+    --shadow:  0 4px 24px rgba(0,0,0,0.08);
+    --blue:    #3b82f6;
+    --yellow:  #f59e0b;
+    --red:     #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    background: var(--green-d);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  header .logo {
+    width: 42px; height: 42px;
+    background: var(--green);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  header h1 { color: #fff; font-size: 1.4rem; font-weight: 700; }
+  header span { color: #86efac; font-size: 0.85rem; margin-left: auto; }
+
+  /* ─── FILTERS ─── */
+  .filters-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filters-bar label { font-size: 0.8rem; color: var(--muted); font-weight: 600; margin-right: 4px; }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .filter-btn:hover { border-color: var(--green); color: var(--green); }
+  .filter-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+  .filter-btn.niveau-1ac.active { background: var(--blue); border-color: var(--blue); }
+  .filter-btn.niveau-2ac.active { background: var(--yellow); border-color: var(--yellow); }
+
+  /* ─── MAIN GRID ─── */
+  .main {
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+    cursor: pointer;
+    animation: fadeIn .4s ease both;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.13);
+    border-color: var(--green);
+  }
+  .card.hidden { display: none; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-badge {
+    padding: 4px 10px 0;
+    display: flex;
+    gap: 6px;
+  }
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-1ac { background: #dbeafe; color: #1d4ed8; }
+  .badge-2ac { background: #fef3c7; color: #92400e; }
+  .badge-cat { background: var(--green-l); color: var(--green-d); }
+
+  /* ─── SVG AREA ─── */
+  .svg-area {
+    padding: 16px 20px 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+    position: relative;
+  }
+  .svg-area svg {
+    width: 100%;
+    max-width: 200px;
+    height: 140px;
+    overflow: visible;
+  }
+
+  /* SVG animation classes */
+  .geo-shape {
+    fill: var(--green-l);
+    stroke: var(--green);
+    stroke-width: 2.5;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: fill .3s;
+  }
+  .card:hover .geo-shape {
+    fill: #bbf7d0;
+    animation: drawShape 1s ease forwards, pulseFill 2s ease 1s infinite alternate;
+  }
+  @keyframes drawShape {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes pulseFill {
+    from { fill: #bbf7d0; }
+    to   { fill: #dcfce7; }
+  }
+
+  /* Right angle marker */
+  .right-angle {
+    fill: none;
+    stroke: var(--green-d);
+    stroke-width: 1.8;
+    opacity: 0;
+    transition: opacity .4s .6s;
+  }
+  .card:hover .right-angle { opacity: 1; }
+
+  /* dimension labels */
+  .dim-label {
+    font-size: 11px;
+    fill: var(--green-d);
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .4s .5s;
+  }
+  .card:hover .dim-label { opacity: 1; }
+
+  /* angle arc */
+  .angle-arc {
+    fill: none;
+    stroke: var(--yellow);
+    stroke-width: 1.5;
+    opacity: 0;
+    transition: opacity .4s .7s;
+  }
+  .card:hover .angle-arc { opacity: 1; }
+
+  /* center point */
+  .center-dot {
+    fill: var(--green);
+    r: 3;
+    opacity: 0;
+    transition: opacity .4s .6s;
+  }
+  .card:hover .center-dot { opacity: 1; }
+
+  /* diagonal line */
+  .diagonal {
+    stroke: var(--red);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+    opacity: 0;
+    transition: opacity .4s .7s;
+  }
+  .card:hover .diagonal { opacity: 1; }
+
+  /* parallel arrows */
+  .parallel-mark {
+    stroke: var(--blue);
+    stroke-width: 1.8;
+    opacity: 0;
+    transition: opacity .4s .8s;
+  }
+  .card:hover .parallel-mark { opacity: 1; }
+
+  /* ─── CARD INFO ─── */
+  .card-info {
+    padding: 10px 18px 18px;
+  }
+  .card-info h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .card-info p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .formules-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .formule-tag {
+    font-size: 0.76rem;
+    background: var(--green-l);
+    color: var(--green-d);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+  }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideUp .3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: var(--bg);
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    transition: background .2s;
+  }
+  .modal-close:hover { background: #fee2e2; color: var(--red); }
+
+  .modal-svg-large {
+    display: flex;
+    justify-content: center;
+    margin: 14px 0;
+  }
+  .modal-svg-large svg {
+    width: 220px; height: 180px;
+    overflow: visible;
+  }
+  /* modal shape is always drawn */
+  .modal .geo-shape {
+    animation: drawShape 1.2s ease forwards !important;
+    fill: #bbf7d0 !important;
+  }
+  .modal .dim-label,
+  .modal .right-angle,
+  .modal .angle-arc,
+  .modal .center-dot,
+  .modal .diagonal,
+  .modal .parallel-mark { opacity: 1 !important; }
+
+  .modal h2 { font-size: 1.3rem; font-weight: 800; color: var(--green-d); }
+  .modal .modal-badges { display: flex; gap: 6px; margin: 8px 0 12px; }
+
+  .prop-list { list-style: none; margin: 8px 0 14px; }
+  .prop-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .prop-list li::before { content: '✦'; color: var(--green); font-size: 10px; margin-top: 3px; flex-shrink: 0; }
+
+  .formule-block {
+    background: var(--green-l);
+    border-left: 4px solid var(--green);
+    border-radius: 0 10px 10px 0;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+  .formule-block .f-type { font-size: 0.7rem; font-weight: 700; color: var(--green); text-transform: uppercase; }
+  .formule-block .f-formula {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--green-d);
+    margin: 2px 0;
+  }
+  .formule-block .f-exemple { font-size: 0.75rem; color: var(--muted); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .main { padding: 16px; grid-template-columns: 1fr 1fr; gap: 14px; }
+    header { padding: 14px 16px; }
+    header h1 { font-size: 1.1rem; }
+    .filters-bar { padding: 10px 16px; }
+  }
+  @media (max-width: 400px) {
+    .main { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📐</div>
+  <h1>GéoCollège — Figures Animées</h1>
+  <span>11 formes · Collège Maroc</span>
+</header>
+
+<div class="filters-bar">
+  <label>NIVEAU :</label>
+  <button class="filter-btn active" onclick="filter('all', this)">Tous</button>
+  <button class="filter-btn niveau-1ac" onclick="filter('1AC', this)">1AC</button>
+  <button class="filter-btn niveau-2ac" onclick="filter('2AC', this)">2AC</button>
+  <label style="margin-left:14px">CATÉGORIE :</label>
+  <button class="filter-btn" onclick="filter('triangle', this)">Triangles</button>
+  <button class="filter-btn" onclick="filter('quadrilatere', this)">Quadrilatères</button>
+  <button class="filter-btn" onclick="filter('cercle', this)">Cercles</button>
+</div>
+
+<div class="main" id="grid"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA — 11 formes avec SVG animés
+// ═══════════════════════════════════════════════════════
+const FORMES = [
+
+  // ── TRIANGLE QUELCONQUE ──────────────────────────────
+  {
+    id: 'triangle-quelconque',
+    nom: 'Triangle quelconque',
+    categorie: 'triangle', niveau: '1AC',
+    description: 'Triangle avec 3 côtés de longueurs différentes et 3 angles différents.',
+    proprietes: [
+      'Somme des angles = 180°',
+      'Aucun côté ni angle égaux',
+      'Inégalité triangulaire : a + b > c'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = (b × h) ÷ 2', exemple: 'b=8, h=5 → A = 20 cm²' },
+      { type: 'Périmètre', formule: 'P = a + b + c', exemple: 'a=5, b=7, c=8 → P = 20 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="20,130 160,130 90,20" />
+      <text class="dim-label" x="85" y="148">b</text>
+      <text class="dim-label" x="38" y="78">a</text>
+      <text class="dim-label" x="133" y="78">c</text>
+      <path class="angle-arc" d="M 35,130 Q 30,118 38,110" />
+      <path class="angle-arc" d="M 148,130 Q 155,118 148,110" />
+      <path class="angle-arc" d="M 84,34 Q 90,44 96,34" />
+    `
+  },
+
+  // ── TRIANGLE ÉQUILATÉRAL ─────────────────────────────
+  {
+    id: 'triangle-equilateral',
+    nom: 'Triangle équilatéral',
+    categorie: 'triangle', niveau: '1AC',
+    description: 'Triangle avec 3 côtés égaux et 3 angles de 60° chacun.',
+    proprietes: [
+      '3 côtés égaux : a = b = c',
+      '3 angles de 60°',
+      'Hauteur = médiane = médiatrice = bissectrice'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = (a² × √3) ÷ 4', exemple: 'a=6 → A ≈ 15.6 cm²' },
+      { type: 'Périmètre', formule: 'P = 3a', exemple: 'a=6 → P = 18 cm' },
+      { type: 'Hauteur', formule: 'h = (a × √3) ÷ 2', exemple: 'a=6 → h ≈ 5.2 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="90,18 20,132 160,132" />
+      <text class="dim-label" x="85" y="148">a</text>
+      <text class="dim-label" x="38" y="80">a</text>
+      <text class="dim-label" x="133" y="80">a</text>
+      <line class="parallel-mark" x1="47" y1="90" x2="55" y2="82" />
+      <line class="parallel-mark" x1="52" y1="94" x2="60" y2="86" />
+      <line class="parallel-mark" x1="125" y1="90" x2="133" y2="82" />
+      <line class="parallel-mark" x1="130" y1="94" x2="138" y2="86" />
+      <line class="parallel-mark" x1="82" y1="130" x2="90" y2="122" />
+      <line class="parallel-mark" x1="88" y1="130" x2="96" y2="122" />
+      <path class="angle-arc" d="M 34,128 Q 28,112 36,104" />
+      <path class="angle-arc" d="M 146,128 Q 155,112 147,104" />
+      <path class="angle-arc" d="M 82,32 Q 90,44 98,32" />
+    `
+  },
+
+  // ── TRIANGLE ISOCÈLE ─────────────────────────────────
+  {
+    id: 'triangle-isocele',
+    nom: 'Triangle isocèle',
+    categorie: 'triangle', niveau: '1AC',
+    description: 'Triangle ayant deux côtés égaux (les côtés isocèles) et deux angles à la base égaux.',
+    proprietes: [
+      '2 côtés égaux : a = b',
+      '2 angles à la base égaux',
+      'L\'axe de symétrie passe par le sommet principal'
+    ],
+    formules: [
+      { type: 'Périmètre', formule: 'P = 2a + b', exemple: 'a=5, b=6 → P = 16 cm' },
+      { type: 'Hauteur', formule: 'h = √(a² - (b/2)²)', exemple: 'a=5, b=6 → h = 4 cm' },
+      { type: 'Aire', formule: 'A = (b × h) ÷ 2', exemple: 'b=6, h=4 → A = 12 cm²' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="90,18 25,132 155,132" />
+      <text class="dim-label" x="85" y="148">b</text>
+      <text class="dim-label" x="40" y="76">a</text>
+      <text class="dim-label" x="130" y="76">a</text>
+      <line class="diagonal" x1="90" y1="18" x2="90" y2="132" />
+      <line class="parallel-mark" x1="44" y1="86" x2="52" y2="78" />
+      <line class="parallel-mark" x1="49" y1="90" x2="57" y2="82" />
+      <line class="parallel-mark" x1="128" y1="86" x2="136" y2="78" />
+      <line class="parallel-mark" x1="133" y1="90" x2="141" y2="82" />
+    `
+  },
+
+  // ── CARRÉ ────────────────────────────────────────────
+  {
+    id: 'carre',
+    nom: 'Carré',
+    categorie: 'quadrilatere', niveau: '1AC',
+    description: 'Quadrilatère avec 4 côtés égaux et 4 angles droits de 90°.',
+    proprietes: [
+      '4 côtés égaux',
+      '4 angles droits de 90°',
+      '2 diagonales égales qui se coupent perpendiculairement',
+      '4 axes de symétrie'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = a²', exemple: 'a=7 → A = 49 cm²' },
+      { type: 'Périmètre', formule: 'P = 4a', exemple: 'a=7 → P = 28 cm' },
+      { type: 'Diagonale', formule: 'd = a × √2', exemple: 'a=7 → d ≈ 9.9 cm' }
+    ],
+    svg: `
+      <rect class="geo-shape" x="25" y="20" width="120" height="120" />
+      <text class="dim-label" x="78" y="155">a</text>
+      <text class="dim-label" x="5" y="85">a</text>
+      <path class="right-angle" d="M 25,40 L 45,40 L 45,20" />
+      <path class="right-angle" d="M 125,40 L 145,40 L 145,20" />
+      <path class="right-angle" d="M 25,120 L 45,120 L 45,140" />
+      <path class="right-angle" d="M 125,120 L 145,120 L 145,140" />
+      <line class="diagonal" x1="25" y1="20" x2="145" y2="140" />
+      <line class="diagonal" x1="145" y1="20" x2="25" y2="140" />
+      <circle class="center-dot" cx="85" cy="80" />
+    `
+  },
+
+  // ── RECTANGLE ────────────────────────────────────────
+  {
+    id: 'rectangle',
+    nom: 'Rectangle',
+    categorie: 'quadrilatere', niveau: '1AC',
+    description: 'Quadrilatère avec 4 angles droits et côtés opposés égaux et parallèles.',
+    proprietes: [
+      '4 angles droits de 90°',
+      'Côtés opposés égaux et parallèles',
+      'Diagonales égales et se coupent en leur milieu',
+      '2 axes de symétrie'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = L × l', exemple: 'L=9, l=5 → A = 45 cm²' },
+      { type: 'Périmètre', formule: 'P = 2(L + l)', exemple: 'L=9, l=5 → P = 28 cm' },
+      { type: 'Diagonale', formule: 'd = √(L² + l²)', exemple: 'L=9, l=5 → d ≈ 10.3 cm' }
+    ],
+    svg: `
+      <rect class="geo-shape" x="15" y="38" width="150" height="90" />
+      <text class="dim-label" x="80" y="148">L</text>
+      <text class="dim-label" x="2" y="90">l</text>
+      <path class="right-angle" d="M 15,56 L 33,56 L 33,38" />
+      <path class="right-angle" d="M 147,56 L 165,56 L 165,38" />
+      <path class="right-angle" d="M 15,110 L 33,110 L 33,128" />
+      <path class="right-angle" d="M 147,110 L 165,110 L 165,128" />
+      <line class="diagonal" x1="15" y1="38" x2="165" y2="128" />
+      <line class="diagonal" x1="165" y1="38" x2="15" y2="128" />
+      <circle class="center-dot" cx="90" cy="83" />
+    `
+  },
+
+  // ── PARALLÉLOGRAMME ──────────────────────────────────
+  {
+    id: 'parallelogramme',
+    nom: 'Parallélogramme',
+    categorie: 'quadrilatere', niveau: '1AC',
+    description: 'Quadrilatère avec 2 paires de côtés parallèles et opposés égaux.',
+    proprietes: [
+      'Côtés opposés parallèles et égaux',
+      'Angles opposés égaux',
+      'Diagonales se coupent en leur milieu',
+      'Pas nécessairement d\'angle droit'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = b × h', exemple: 'b=10, h=6 → A = 60 cm²' },
+      { type: 'Périmètre', formule: 'P = 2(a + b)', exemple: 'a=7, b=10 → P = 34 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="40,130 170,130 140,30 10,30" />
+      <text class="dim-label" x="80" y="148">b</text>
+      <text class="dim-label" x="155" y="88">a</text>
+      <line class="diagonal" x1="40" y1="130" x2="140" y2="30" stroke-dasharray="4 3" />
+      <line class="parallel-mark" x1="62" y1="128" x2="70" y2="116" />
+      <line class="parallel-mark" x1="100" y1="128" x2="108" y2="116" />
+      <line class="parallel-mark" x1="42" y1="42" x2="50" y2="30" />
+      <line class="parallel-mark" x1="80" y1="42" x2="88" y2="30" />
+      <circle class="center-dot" cx="90" cy="80" />
+    `
+  },
+
+  // ── TRIANGLE RECTANGLE ───────────────────────────────
+  {
+    id: 'triangle-rectangle',
+    nom: 'Triangle rectangle',
+    categorie: 'triangle', niveau: '2AC',
+    description: 'Triangle possédant un angle droit de 90°. Le côté opposé à l\'angle droit est l\'hypoténuse.',
+    proprietes: [
+      'Un angle droit exactement (90°)',
+      'L\'hypoténuse est le côté le plus long',
+      'Lié au théorème de Pythagore : a² + b² = c²',
+      'La somme des deux autres angles = 90°'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = (b × h) ÷ 2', exemple: 'b=6, h=4 → A = 12 cm²' },
+      { type: 'Pythagore', formule: 'c² = a² + b²', exemple: 'a=3, b=4 → c = 5 cm' },
+      { type: 'Périmètre', formule: 'P = a + b + c', exemple: 'P = 3+4+5 = 12 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="20,130 160,130 20,20" />
+      <path class="right-angle" d="M 20,110 L 40,110 L 40,130" />
+      <text class="dim-label" x="80" y="148">b</text>
+      <text class="dim-label" x="4" y="78">h</text>
+      <text class="dim-label" x="95" y="72">c (hyp.)</text>
+      <path class="angle-arc" d="M 36,130 Q 38,112 30,106" />
+      <path class="angle-arc" d="M 150,130 Q 152,116 144,112" />
+    `
+  },
+
+  // ── LOSANGE ──────────────────────────────────────────
+  {
+    id: 'losange',
+    nom: 'Losange',
+    categorie: 'quadrilatere', niveau: '2AC',
+    description: 'Quadrilatère avec 4 côtés égaux. Les diagonales se coupent perpendiculairement.',
+    proprietes: [
+      '4 côtés égaux',
+      'Diagonales perpendiculaires',
+      'Diagonales sont axes de symétrie',
+      'Angles opposés égaux'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = (D × d) ÷ 2', exemple: 'D=10, d=6 → A = 30 cm²' },
+      { type: 'Périmètre', formule: 'P = 4a', exemple: 'a=6 → P = 24 cm' },
+      { type: 'Côté', formule: 'a = √((D/2)² + (d/2)²)', exemple: 'D=10, d=6 → a ≈ 5.8 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="90,15 165,80 90,145 15,80" />
+      <line class="diagonal" x1="90" y1="15" x2="90" y2="145" />
+      <line class="diagonal" x1="15" y1="80" x2="165" y2="80" />
+      <path class="right-angle" d="M 90,68 L 102,80 L 90,92" />
+      <circle class="center-dot" cx="90" cy="80" />
+      <text class="dim-label" x="95" y="40">D</text>
+      <text class="dim-label" x="132" y="78">d</text>
+      <line class="parallel-mark" x1="36" y1="54" x2="50" y2="46" />
+      <line class="parallel-mark" x1="42" y1="60" x2="56" y2="52" />
+      <line class="parallel-mark" x1="128" y1="54" x2="142" y2="46" />
+      <line class="parallel-mark" x1="134" y1="60" x2="148" y2="52" />
+    `
+  },
+
+  // ── TRAPÈZE ──────────────────────────────────────────
+  {
+    id: 'trapeze',
+    nom: 'Trapèze',
+    categorie: 'quadrilatere', niveau: '2AC',
+    description: 'Quadrilatère ayant exactement une paire de côtés parallèles (les bases).',
+    proprietes: [
+      'Une paire de côtés parallèles (bases)',
+      'Base grande (B) et petite base (b)',
+      'La hauteur est perpendiculaire aux bases',
+      'Trapèze isocèle : les côtés non-parallèles sont égaux'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = (B + b) ÷ 2 × h', exemple: 'B=12, b=6, h=5 → A = 45 cm²' },
+      { type: 'Périmètre', formule: 'P = B + b + c₁ + c₂', exemple: 'P = 12+6+5+5 = 28 cm' }
+    ],
+    svg: `
+      <polygon class="geo-shape" points="15,130 165,130 135,35 45,35" />
+      <text class="dim-label" x="78" y="148">B</text>
+      <text class="dim-label" x="83" y="28">b</text>
+      <line class="parallel-mark" x1="72" y1="128" x2="80" y2="116" />
+      <line class="parallel-mark" x1="108" y1="128" x2="116" y2="116" />
+      <line class="parallel-mark" x1="80" y1="44" x2="88" y2="32" />
+      <line class="parallel-mark" x1="100" y1="44" x2="108" y2="32" />
+      <line class="diagonal" x1="90" y1="35" x2="90" y2="130" />
+      <path class="right-angle" d="M 90,115 L 102,115 L 102,130" />
+      <text class="dim-label" x="95" y="92">h</text>
+    `
+  },
+
+  // ── CERCLE ───────────────────────────────────────────
+  {
+    id: 'cercle',
+    nom: 'Cercle',
+    categorie: 'cercle', niveau: '2AC',
+    description: 'Ensemble de points situés à la même distance (rayon) d\'un point fixe (centre).',
+    proprietes: [
+      'Tous les points sont à distance r du centre',
+      'Diamètre = 2 × rayon',
+      'Symétrie axiale pour tout diamètre',
+      'Nombre π ≈ 3.14159'
+    ],
+    formules: [
+      { type: 'Circonférence', formule: 'C = 2π × r', exemple: 'r=5 → C ≈ 31.4 cm' },
+      { type: 'Diamètre', formule: 'd = 2r', exemple: 'r=5 → d = 10 cm' }
+    ],
+    svg: `
+      <circle class="geo-shape" cx="90" cy="80" r="62" />
+      <circle class="center-dot" cx="90" cy="80" />
+      <line class="diagonal" x1="90" y1="80" x2="152" y2="80" />
+      <line class="diagonal" x1="28" y1="80" x2="152" y2="80" />
+      <text class="dim-label" x="116" y="74">r</text>
+      <text class="dim-label" x="53" y="74">r</text>
+      <path class="angle-arc" d="M 90,60 Q 100,80 90,100" />
+    `
+  },
+
+  // ── DISQUE ───────────────────────────────────────────
+  {
+    id: 'disque',
+    nom: 'Disque',
+    categorie: 'cercle', niveau: '2AC',
+    description: 'Surface délimitée par un cercle. Le disque inclut tous les points intérieurs au cercle.',
+    proprietes: [
+      'Surface intérieure du cercle',
+      'Rayon = distance centre → bord',
+      'Aire proportionnelle à r²',
+      'π ≈ 3.14159265'
+    ],
+    formules: [
+      { type: 'Aire', formule: 'A = π × r²', exemple: 'r=5 → A ≈ 78.5 cm²' },
+      { type: 'Circonférence', formule: 'C = 2π × r', exemple: 'r=5 → C ≈ 31.4 cm' }
+    ],
+    svg: `
+      <circle cx="90" cy="80" r="62"
+        fill="#bbf7d0" stroke="var(--green)" stroke-width="2.5"
+        class="geo-shape" style="fill-opacity:0.85;" />
+      <circle class="center-dot" cx="90" cy="80" />
+      <line class="diagonal" x1="90" y1="80" x2="152" y2="80" />
+      <text class="dim-label" x="116" y="72">r</text>
+      <text class="dim-label" x="84" y="96">O</text>
+      <circle cx="90" cy="80" r="62" fill="none"
+        stroke="var(--green-d)" stroke-width="1.5"
+        stroke-dasharray="8 4" class="diagonal" />
+    `
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+
+function buildSVG(forme, size = 'sm') {
+  const w = size === 'lg' ? 220 : 180;
+  const h = size === 'lg' ? 180 : 145;
+  return `<svg viewBox="0 0 180 155" xmlns="http://www.w3.org/2000/svg"
+    width="${w}" height="${h}" overflow="visible">
+    ${forme.svg}
+  </svg>`;
+}
+
+function renderCards(list) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  list.forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${i * 0.06}s`;
+    card.dataset.niveau = f.niveau;
+    card.dataset.cat = f.categorie;
+    card.onclick = () => openModal(f);
+    card.innerHTML = `
+      <div class="card-badge">
+        <span class="badge badge-${f.niveau.toLowerCase()}">${f.niveau}</span>
+        <span class="badge badge-cat">${f.categorie === 'quadrilatere' ? 'Quadrilatère' : f.categorie === 'triangle' ? 'Triangle' : 'Cercle'}</span>
+      </div>
+      <div class="svg-area">${buildSVG(f)}</div>
+      <div class="card-info">
+        <h3>${f.nom}</h3>
+        <p>${f.description}</p>
+        <div class="formules-preview">
+          ${f.formules.slice(0,2).map(fo => `<div class="formule-tag">${fo.formule}</div>`).join('')}
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  FILTER
+// ═══════════════════════════════════════════════════════
+
+let activeFilter = 'all';
+
+function filter(val, btn) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.card').forEach(c => {
+    const match =
+      val === 'all' ||
+      c.dataset.niveau === val ||
+      c.dataset.cat === val;
+    c.classList.toggle('hidden', !match);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════════════
+
+function openModal(f) {
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-badges">
+      <span class="badge badge-${f.niveau.toLowerCase()}">${f.niveau}</span>
+      <span class="badge badge-cat">${f.categorie === 'quadrilatere' ? 'Quadrilatère' : f.categorie === 'triangle' ? 'Triangle' : 'Cercle'}</span>
+    </div>
+    <h2>${f.nom}</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin:8px 0">${f.description}</p>
+
+    <div class="modal-svg-large">${buildSVG(f, 'lg')}</div>
+
+    <h4 style="margin:12px 0 6px;color:var(--green-d);font-size:.85rem;text-transform:uppercase;letter-spacing:.05em">Propriétés</h4>
+    <ul class="prop-list">
+      ${f.proprietes.map(p => `<li>${p}</li>`).join('')}
+    </ul>
+
+    <h4 style="margin:12px 0 6px;color:var(--green-d);font-size:.85rem;text-transform:uppercase;letter-spacing:.05em">Formules</h4>
+    ${f.formules.map(fo => `
+      <div class="formule-block">
+        <div class="f-type">${fo.type}</div>
+        <div class="f-formula">${fo.formule}</div>
+        <div class="f-exemple">Exemple : ${fo.exemple}</div>
+      </div>`).join('')}
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModalBtn() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalBtn();
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+renderCards(FORMES);
+</script>
+</body>
+</html>

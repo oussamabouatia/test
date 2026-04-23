@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GéoCollège — Formes géométriques</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="geo-animations.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --green: #16a34a;
+      --green-d: #14532d;
+      --green-l: #dcfce7;
+      --green-m: #4ade80;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --muted2: #94a3b8;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, .08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, .06);
+      --c1ac: #eff6ff;
+      --c1ac-t: #1d4ed8;
+      --c1ac-b: #bfdbfe;
+      --c2ac: #fefce8;
+      --c2ac-t: #854d0e;
+      --c2ac-b: #fef08a;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--green-d);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 7px 16px;
+      border-radius: 99px;
+      transition: all .18s;
+    }
+
+    .nav-a:hover {
+      background: var(--green-l);
+      color: var(--green-d);
+    }
+
+    .nav-a.active {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .page-hero {
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #f8fafc);
+      padding: 48px 24px 36px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(22px, 4vw, 38px);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .page-hero h1 span {
+      color: var(--green);
+    }
+
+    .page-hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 460px;
+      margin: 0 auto 24px;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .f-btn {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 99px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .f-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .f-btn.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .f-btn[data-cat="triangle"].active {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .f-btn[data-cat="quadrilatere"].active {
+      background: #854d0e;
+      border-color: #854d0e;
+    }
+
+    .f-btn[data-cat="cercle"].active {
+      background: #7e22ce;
+      border-color: #7e22ce;
+    }
+
+    .f-btn[data-level="1AC"].active {
+      background: var(--c1ac-t);
+      border-color: var(--c1ac-t);
+    }
+
+    .f-btn[data-level="2AC"].active {
+      background: var(--c2ac-t);
+      border-color: var(--c2ac-t);
+    }
+
+    .f-btn[data-level="3AC"].active {
+      background: var(--c3ac-t);
+      border-color: var(--c3ac-t);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .section-label {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 32px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* FORME CARD ACCORDÉON */
+    .forme-detail {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: box-shadow .2s, border-color .2s;
+    }
+
+    .forme-detail:hover {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .forme-detail.open {
+      border-color: #bbf7d0;
+      box-shadow: var(--shadow);
+    }
+
+    .fd-header {
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .fd-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--green-l);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .fd-icon svg {
+      width: 26px;
+      height: 26px;
+      stroke: var(--green);
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .fd-info {
+      flex: 1;
+    }
+
+    .fd-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .fd-desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .fd-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .niveau-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+      letter-spacing: .5px;
+    }
+
+    .n1AC {
+      background: var(--c1ac);
+      color: var(--c1ac-t);
+      border: 1px solid var(--c1ac-b);
+    }
+
+    .n2AC {
+      background: var(--c2ac);
+      color: var(--c2ac-t);
+      border: 1px solid var(--c2ac-b);
+    }
+
+    .chip-sm {
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+      color: var(--muted);
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .chevron {
+      font-size: 18px;
+      color: var(--muted2);
+      transition: transform .25s;
+    }
+
+    .forme-detail.open .chevron {
+      transform: rotate(180deg);
+    }
+
+    .fd-body {
+      display: none;
+      padding: 0 22px 22px;
+      animation: fadeIn .2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .forme-detail.open .fd-body {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .fd-figure {
+      background: var(--green-l);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 148px;
+    }
+
+    .fd-figure svg {
+      width: 100%;
+      max-width: 128px;
+    }
+
+    .theo-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .theo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fef08a;
+      border-radius: 99px;
+    }
+
+    .props-title,
+    .formules-title,
+    .calc-head {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .props-title {
+      margin-top: 0;
+    }
+
+    .prop-item {
+      font-size: 13px;
+      color: var(--text);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prop-item::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    .prop-item:last-child {
+      border-bottom: none;
+    }
+
+    .formules-title {
+      margin-top: 16px;
+    }
+
+    .formule-row {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .fr-type {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      min-width: 72px;
+    }
+
+    .fr-formula {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .fr-ex {
+      font-size: 12px;
+      color: var(--muted2);
+      margin-left: auto;
+    }
+
+    /* CALCULATEUR */
+    .calc-section {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .calc-head {
+      margin-bottom: 10px;
+    }
+
+    .calc-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .calc-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .calc-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .calc-field input {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      width: 105px;
+      outline: none;
+      transition: border-color .18s;
+    }
+
+    .calc-field input:focus {
+      border-color: var(--green);
+    }
+
+    .calc-btn {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 20px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .18s;
+    }
+
+    .calc-btn:hover {
+      background: var(--green-d);
+    }
+
+    .calc-result {
+      display: none;
+    }
+
+    .calc-result.show {
+      display: block;
+    }
+
+    /* ÉTAPES */
+    .etapes-bloc {
+      border: 1px solid rgba(22, 163, 74, .2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .etapes-label {
+      background: var(--green);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 5px 13px;
+    }
+
+    .etapes-list {
+      padding: 10px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .etape-ligne {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .etape-num {
+      min-width: 20px;
+      height: 20px;
+      background: var(--green-l);
+      color: var(--green);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .etape-finale .etape-num {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .etape-finale .etape-texte {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green-d);
+    }
+
+    /* FICHE BTN */
+    .btn-fiche {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      background: var(--surface);
+      color: var(--green);
+      border: 1.5px solid var(--green);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .18s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-fiche:hover {
+      background: var(--green);
+      color: #fff;
+    }
+
+    /* LOADING / EMPTY */
+    .loading-msg {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    footer {
+      background: var(--green-d);
+      color: #a7f3d0;
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 60px;
+    }
+
+    footer strong {
+      color: #fff;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    footer a {
+      color: #6ee7b7;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color .15s;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+
+    @media(max-width:768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .fd-body {
+        grid-template-columns: 1fr !important;
+      }
+
+      .fd-right .chip-sm {
+        display: none;
+      }
+
+      .container {
+        padding: 24px 16px;
+      }
+    }
+
+    @media(max-width:480px) {
+      .calc-row {
+        flex-direction: column;
+      }
+
+      .calc-field input {
+        width: 100%;
+      }
+    }
+
+    /* PRINT */
+    @media print {
+
+      header,
+      nav,
+      .page-hero,
+      .filters,
+      footer,
+      .calc-section,
+      .btn-fiche,
+      .forme-detail:not(.printing),
+      .section-label,
+      .chevron {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .forme-detail.printing {
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      .forme-detail.printing .fd-body {
+        display: grid !important;
+        grid-template-columns: 150px 1fr;
+      }
+
+      .fiche-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 2px solid var(--green);
+        margin-bottom: 16px;
+      }
+
+      .fiche-header-title {
+        font-family: 'Unbounded', sans-serif;
+        font-size: 20pt;
+        font-weight: 900;
+        color: var(--green);
+      }
+
+      .fiche-header-meta {
+        font-size: 10pt;
+        color: var(--muted);
+        text-align: right;
+      }
+
+      .formule-row {
+        break-inside: avoid;
+      }
+
+      .fr-formula {
+        font-size: 14pt !important;
+      }
+
+      .fiche-notes {
+        display: block !important;
+        margin-top: 20px;
+        border-top: 1px dashed #ccc;
+        padding-top: 12px;
+      }
+
+      .notes-title {
+        font-size: 10pt;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .notes-lines div {
+        height: 24px;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Bannière d'installation PWA -->
+  <div id="install-banner"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#14532d;color:#fff;padding:14px 20px;font-size:14px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;align-items:center;justify-content:center;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);flex-wrap:wrap;">
+    <span id="install-text">📲 Installer <strong>GéoCollège</strong> sur votre appareil</span>
+    <button id="install-btn"
+      style="padding:8px 20px;background:#16a34a;color:#fff;border:none;border-radius:16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">Installer</button>
+    <button id="install-close"
+      style="background:none;border:none;color:#a7f3d0;font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;"
+      aria-label="Fermer">✕</button>
+  </div>
+
+  <nav>
+
+    <a class="nav-logo" href="index.html"><span class="dot"></span>GéoCollège</a>
+    <span id="offline-badge"
+      style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:4px 12px;border-radius:99px;margin-left:8px;"><span
+        style="width:8px;height:8px;background:#f59e0b;border-radius:50%;display:inline-block;animation:blink-dot 1s ease-in-out infinite;"></span>
+      Hors-ligne</span>
+    <style>
+      @keyframes blink-dot {
+
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.3;
+        }
+      }
+    </style>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-a" style="font-weight:700;">📚 Dictionnaire</a>
+      <a href="learning-path.html" class="nav-a" style="font-weight:700;">🎯 Mon Parcours</a>
+      <div style="position:relative;display:inline-block;" id="nav-more-wrap">
+        <button style="cursor:pointer;background:none;border:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);padding:7px 12px;border-radius:99px;" onclick="event.stopPropagation();var dd=document.getElementById('nav-more-dd');dd.style.display=dd.style.display==='block'?'none':'block';">+ Plus</button>
+        <div id="nav-more-dd" style="display:none;position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:180px;z-index:300;">
+          <a href="formes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--green-d);text-decoration:none;border-radius:8px;background:var(--green-l);font-weight:600;">📐 Formes</a>
+          <a href="theoremes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">📏 Théorèmes</a>
+          <a href="exercices.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">✏️ Exercices</a>
+          <a href="constructeur.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">🎛️ Constructeur</a>
+        </div>
+      </div>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+    <script>document.addEventListener('click',e=>{const w=document.getElementById('nav-more-wrap');const dd=document.getElementById('nav-more-dd');if(dd&&w&&!w.contains(e.target))dd.style.display='none';});</script>
+  </nav>
+
+  <div class="page-hero">
+    <h1>Toutes les <span>formes</span> géométriques</h1>
+    <p>Clique sur une forme pour voir ses propriétés, formules et calculateur pas à pas.</p>
+    <div class="filters">
+      <button class="f-btn active" data-filter="tous">Toutes</button>
+      <button class="f-btn" data-cat="triangle">Triangles</button>
+      <button class="f-btn" data-cat="quadrilatere">Quadrilatères</button>
+      <button class="f-btn" data-cat="cercle">Cercles</button>
+      <button class="f-btn" data-level="1AC">1AC</button>
+      <button class="f-btn" data-level="2AC">2AC</button>
+      <button class="f-btn" data-level="3AC">3AC</button>
+    </div>
+  </div>
+
+  <main class="container">
+    <div id="formes-list">
+      <p class="loading-msg">Chargement des formes…</p>
+    </div>
+  </main>
+
+  <footer>
+    <strong>GéoCollège</strong>
+    <p style="margin-top:8px;">Projet CRMEF Mathématiques · Géométrie collège Maroc</p>
+    <div class="footer-links">
+      <a href="index.html">Accueil</a>
+      <a href="theoremes.html">Théorèmes</a>
+    </div>
+  </footer>
+
+  <script>
+    let FORMES = [];
+    const ICONES = {
+      triangle: `<svg viewBox="0 0 28 28"><polygon points="14,3 25,24 3,24" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      quadrilatere: `<svg viewBox="0 0 28 28"><rect x="3" y="7" width="22" height="16" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      cercle: `<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke-linecap="round"/></svg>`,
+    };
+    const ETAPES = {
+      'triangle-rectangle': (v) => [{ label: 'Aire', etapes: [`Formule : A = b × h ÷ 2`, `Substitution : A = ${v.b} × ${v.h} ÷ 2`, `Multiplication : A = ${v.b * v.h} ÷ 2`, `Résultat : A = ${(v.b * v.h / 2).toFixed(2)} cm²`] }, { label: 'Hypoténuse c (Pythagore)', etapes: [`Formule : c² = b² + h²`, `Substitution : c² = ${v.b}² + ${v.h}² = ${v.b ** 2 + v.h ** 2}`, `Résultat : c = √${v.b ** 2 + v.h ** 2} = ${Math.sqrt(v.b ** 2 + v.h ** 2).toFixed(2)} cm`] }],
+      'triangle-equilateral': (v) => [{ label: 'Aire', etapes: [`Formule : A = a × h ÷ 2`, `A = ${v.a} × ${v.h} ÷ 2 = ${(v.a * v.h / 2).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 3 × a`, `P = 3 × ${v.a} = ${(3 * v.a).toFixed(2)} cm`] }],
+      'triangle-isocele': (v) => [{ label: 'Aire', etapes: [`Formule : A = b × h ÷ 2`, `A = ${v.b} × ${v.h} ÷ 2 = ${(v.b * v.h / 2).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 2a + b`, `P = 2×${v.a} + ${v.b} = ${(2 * v.a + v.b).toFixed(2)} cm`] }],
+      'carre': (v) => [{ label: 'Aire', etapes: [`Formule : A = c²`, `A = ${v.c}² = ${(v.c ** 2).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 4c`, `P = 4 × ${v.c} = ${(4 * v.c).toFixed(2)} cm`] }, { label: 'Diagonale', etapes: [`Formule : d = c × √2`, `d = ${v.c} × 1.414 = ${(v.c * Math.sqrt(2)).toFixed(2)} cm`] }],
+      'rectangle': (v) => [{ label: 'Aire', etapes: [`Formule : A = L × l`, `A = ${v.L} × ${v.l} = ${(v.L * v.l).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 2(L+l)`, `P = 2×(${v.L}+${v.l}) = 2×${v.L + v.l} = ${(2 * (v.L + v.l)).toFixed(2)} cm`] }, { label: 'Diagonale', etapes: [`Formule : d = √(L²+l²)`, `d = √(${v.L ** 2}+${v.l ** 2}) = √${v.L ** 2 + v.l ** 2} = ${Math.sqrt(v.L ** 2 + v.l ** 2).toFixed(2)} cm`] }],
+      'losange': (v) => [{ label: 'Aire', etapes: [`Formule : A = (d1×d2) ÷ 2`, `A = (${v.d1}×${v.d2}) ÷ 2 = ${v.d1 * v.d2} ÷ 2 = ${(v.d1 * v.d2 / 2).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 4c`, `P = 4 × ${v.c} = ${(4 * v.c).toFixed(2)} cm`] }],
+      'trapeze': (v) => [{ label: 'Aire', etapes: [`Formule : A = (B+b) × h ÷ 2`, `A = (${v.B}+${v.b}) × ${v.h} ÷ 2`, `A = ${v.B + v.b} × ${v.h} ÷ 2 = ${(v.B + v.b) * v.h} ÷ 2`, `Résultat : A = ${((v.B + v.b) * v.h / 2).toFixed(2)} cm²`] }],
+      'cercle': (v) => [{ label: 'Aire', etapes: [`Formule : A = π × r²`, `A = 3.14159 × ${v.r}² = 3.14159 × ${v.r ** 2}`, `Résultat : A = ${(Math.PI * v.r ** 2).toFixed(2)} cm²`] }, { label: 'Périmètre', etapes: [`Formule : P = 2 × π × r`, `P = 2 × 3.14159 × ${v.r} = ${(2 * Math.PI * v.r).toFixed(2)} cm`] }, { label: 'Diamètre', etapes: [`d = 2 × r = 2 × ${v.r} = ${(2 * v.r).toFixed(2)} cm`] }],
+      'disque': (v) => [{ label: 'Aire', etapes: [`A = π × r² = 3.14159 × ${v.r ** 2} = ${(Math.PI * v.r ** 2).toFixed(2)} cm²`] }, { label: 'Circonférence', etapes: [`C = 2 × π × r = 2 × 3.14159 × ${v.r} = ${(2 * Math.PI * v.r).toFixed(2)} cm`] }],
+      'parallelogramme': (v) => [{ label: 'Aire', etapes: [`Formule : A = b × h`, `A = ${v.b} × ${v.h} = ${(v.b * v.h).toFixed(2)} cm²`] }],
+      'triangle-quelconque': (v) => [{ label: 'Aire', etapes: [`Formule : A = (b × h) ÷ 2`, `A = (${v.b} × ${v.h}) ÷ 2 = ${v.b * v.h} ÷ 2 = ${(v.b * v.h / 2).toFixed(2)} cm²`] }],
+    };
+
+    async function init() {
+      try {
+        const r = await fetch('data/formes.json');
+        if (!r.ok) throw new Error('API error ' + r.status);
+        FORMES = await r.json();
+      } catch (e) {
+        document.getElementById('formes-list').innerHTML =
+          '<p class="loading-msg" style="color:#b91c1c;">Erreur chargement API — vérifiez que XAMPP est démarré.</p>';
+        return;
+      }
+      render(FORMES);
+    }
+
+    function render(list) {
+      const container = document.getElementById('formes-list');
+      if (!list.length) { container.innerHTML = '<p class="loading-msg">Aucune forme trouvée.</p>'; return; }
+      const groups = {};
+      list.forEach(f => { if (!groups[f.categorie]) groups[f.categorie] = []; groups[f.categorie].push(f); });
+      const labels = { triangle: 'Triangles', quadrilatere: 'Quadrilatères', cercle: 'Cercles' };
+      container.innerHTML = Object.entries(groups).map(([cat, items]) => `
+      <div class="section-label">${labels[cat] || cat}</div>
+      ${items.map(f => renderCard(f)).join('')}
+    `).join('');
+      container.querySelectorAll('.fd-header').forEach(h => h.addEventListener('click', () => h.closest('.forme-detail').classList.toggle('open')));
+    }
+
+    function renderCard(f) {
+      const chips = f.formules.slice(0, 2).map(fm => `<span class="chip-sm">${fm.formule}</span>`).join('');
+      const props = (f.proprietes || []).map(p => `<div class="prop-item">${p}</div>`).join('');
+      const formules = f.formules.map(fm => {
+        const ex = fm.exemple?.resultat ? `Ex: ${fm.exemple.resultat}` : fm.exemple?.note || '';
+        return `<div class="formule-row"><span class="fr-type">${fm.type}</span><span class="fr-formula">${fm.formule}</span>${ex ? `<span class="fr-ex">${ex}</span>` : ''}</div>`;
+      }).join('');
+      const vars = Object.entries(f.variables || {}).map(([k, l]) => `<div class="calc-field"><label>${l}</label><input type="number" id="calc-${f.slug}-${k}" placeholder="${k}" min="0" step="0.1"/></div>`).join('');
+      const theos = (f.theoremes_lies || []).map(t => `<span class="theo-badge">📐 ${t}</span>`).join('');
+      return `
+      <div class="forme-detail" id="card-${f.slug}">
+        <div class="fd-header">
+          <div class="fd-icon">${ICONES[f.categorie] || ICONES.quadrilatere}</div>
+          <div class="fd-info"><div class="fd-name">${f.nom}</div><div class="fd-desc">${f.description}</div></div>
+          <div class="fd-right">
+            ${chips}
+            <span class="niveau-pill n${f.niveau}">${f.niveau}</span>
+            <a class="btn-fiche" href="lecon.html?id=${f.slug}" onclick="event.stopPropagation()" style="text-decoration:none;">📖 Leçon</a>
+            <button class="btn-fiche" onclick="event.stopPropagation();imprimerFiche('${f.slug}')">⬇ Fiche</button>
+            <span class="chevron">▾</span>
+          </div>
+        </div>
+        <div class="fiche-header" style="display:none;padding:0 22px;">
+          <div class="fiche-header-title">${f.nom}</div>
+          <div class="fiche-header-meta">Niveau : ${f.niveau}<br>GéoCollège · CRMEF</div>
+        </div>
+        <div class="fd-body">
+          <div>
+            <div class="fd-figure"><svg viewBox="${f.svg.viewBox}">${f.svg.elements}</svg></div>
+            ${theos ? `<div class="theo-badges">${theos}</div>` : ''}
+          </div>
+          <div>
+            ${props ? `<div class="props-title">Propriétés</div>${props}` : ''}
+            <div class="formules-title">Formules</div>
+            ${formules}
+            <div class="calc-section">
+              <div class="calc-head">Calculateur pas à pas</div>
+              <div class="calc-row">${vars}<button class="calc-btn" onclick="calculer('${f.slug}')">Calculer</button></div>
+              <div class="calc-result" id="res-${f.slug}"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fiche-notes" style="display:none;padding:0 22px 20px;">
+          <div class="notes-title">Notes</div>
+          <div class="notes-lines">${Array(5).fill('<div></div>').join('')}</div>
+        </div>
+      </div>`;
+    }
+
+    function calculer(id) {
+      const f = FORMES.find(x => x.slug === id); if (!f) return;
+      const vals = {}; let ok = true;
+      Object.keys(f.variables || {}).forEach(k => { const v = parseFloat(document.getElementById(`calc-${id}-${k}`)?.value); if (isNaN(v) || v <= 0) ok = false; else vals[k] = v; });
+      const el = document.getElementById(`res-${id}`);
+      if (!ok) { el.innerHTML = '<div style="font-size:13px;color:#b91c1c;padding:6px 0;">Remplis toutes les valeurs.</div>'; el.classList.add('show'); return; }
+      const fn = ETAPES[id];
+      if (!fn) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);">Calcul non disponible.</div>'; el.classList.add('show'); return; }
+      el.innerHTML = fn(vals).map(r => `
+      <div class="etapes-bloc">
+        <div class="etapes-label">${r.label}</div>
+        <div class="etapes-list">
+          ${r.etapes.map((e, j) => `<div class="etape-ligne ${j === r.etapes.length - 1 ? 'etape-finale' : ''}"><span class="etape-num">${j + 1}</span><span class="etape-texte">${e}</span></div>`).join('')}
+        </div>
+      </div>`).join('');
+      el.classList.add('show');
+    }
+
+    function imprimerFiche(slug) {
+      const card = document.getElementById(`card-${slug}`); if (!card) return;
+      card.classList.add('open');
+      document.querySelectorAll('.forme-detail').forEach(c => c.classList.remove('printing'));
+      card.classList.add('printing');
+      window.print();
+      setTimeout(() => card.classList.remove('printing'), 1000);
+    }
+
+    document.querySelectorAll('.f-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      const cat = btn.dataset.cat, level = btn.dataset.level, all = btn.dataset.filter === 'tous';
+      let filtered = FORMES;
+      if (cat) filtered = FORMES.filter(f => f.categorie === cat);
+      if (level) filtered = FORMES.filter(f => f.niveau === level);
+      if (all) filtered = FORMES;
+      render(filtered);
+    }));
+
+    init();
+  </script>
+  <script src="geo-auth.js"></script>
+  <script src="geo-animations.js"></script>
+
+  <!-- PWA : Service Worker + Install Banner + Offline Badge -->
+  <script src="pwa.js"></script>
+
+</body>
+
+</html>

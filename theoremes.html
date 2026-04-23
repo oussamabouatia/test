@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GéoCollège — Théorèmes</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --green: #16a34a;
+      --green-d: #14532d;
+      --green-l: #dcfce7;
+      --green-m: #4ade80;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --muted2: #94a3b8;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, .08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, .06);
+      --c2ac: #fefce8;
+      --c2ac-t: #854d0e;
+      --c3ac: #fdf4ff;
+      --c3ac-t: #7e22ce;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--green-d);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 7px 16px;
+      border-radius: 99px;
+      transition: all .18s;
+    }
+
+    .nav-a:hover {
+      background: var(--green-l);
+      color: var(--green-d);
+    }
+
+    .nav-a.active {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .page-hero {
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #f8fafc);
+      padding: 52px 24px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(22px, 4vw, 38px);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .page-hero h1 span {
+      color: var(--green);
+    }
+
+    .page-hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 44px 24px;
+    }
+
+    /* THÉORÈME CARD */
+    .theo-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+
+    .theo-card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .tc-header {
+      padding: 28px 28px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .tc-num {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      color: var(--green-l);
+      line-height: 1;
+      flex-shrink: 0;
+      -webkit-text-stroke: 2px var(--green);
+    }
+
+    .tc-title-block {
+      flex: 1;
+      padding-top: 4px;
+    }
+
+    .tc-title-block h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .tc-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .niveau-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+      letter-spacing: .5px;
+    }
+
+    .n2AC {
+      background: var(--c2ac);
+      color: var(--c2ac-t);
+      border: 1px solid #fef08a;
+    }
+
+    .n3AC {
+      background: var(--c3ac);
+      color: var(--c3ac-t);
+      border: 1px solid #e9d5ff;
+    }
+
+    .cat-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 99px;
+      background: var(--green-l);
+      color: var(--green-d);
+    }
+
+    .tc-body {
+      padding: 24px 28px 28px;
+    }
+
+    /* ÉNONCÉ */
+    .enonce {
+      background: var(--green-l);
+      border-left: 4px solid var(--green);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .enonce-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--green-d);
+      margin-bottom: 6px;
+    }
+
+    .enonce-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* CONDITION */
+    .condition {
+      background: var(--c2ac);
+      border-left: 4px solid var(--c2ac-t);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+
+    .condition-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--c2ac-t);
+      margin-bottom: 6px;
+    }
+
+    .condition-text {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    /* COLS */
+    .tc-cols {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* FORMULE PRINCIPALE */
+    .formule-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .formule-box-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .formule-box-expr {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    /* EXEMPLES */
+    .ex-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin: 16px 0 10px;
+    }
+
+    .ex-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+
+    .ex-q {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .ex-steps {
+      list-style: none;
+    }
+
+    .ex-steps li {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 3px 0 3px 18px;
+      position: relative;
+    }
+
+    .ex-steps li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .ex-steps li.final {
+      color: var(--green-d);
+      font-weight: 700;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+    }
+
+    /* CALCULATEUR */
+    .calc-section {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      margin-top: 16px;
+    }
+
+    .calc-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .calc-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .ctab {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 15px;
+      border-radius: 99px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .ctab.active {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .calc-mode {
+      display: none;
+    }
+
+    .calc-mode.active {
+      display: block;
+    }
+
+    .calc-hint {
+      font-size: 12px;
+      color: var(--muted2);
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .calc-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .calc-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .calc-field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .calc-field input {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      width: 105px;
+      outline: none;
+      transition: border-color .18s;
+    }
+
+    .calc-field input:focus {
+      border-color: var(--green);
+    }
+
+    .calc-btn {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 20px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .18s;
+    }
+
+    .calc-btn:hover {
+      background: var(--green-d);
+    }
+
+    .calc-res {
+      display: none;
+      background: var(--green-l);
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--green-d);
+      margin-top: 8px;
+      line-height: 1.7;
+    }
+
+    .calc-res.show {
+      display: block;
+    }
+
+    .calc-res strong {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 16px;
+    }
+
+    /* FIGURE */
+    .tc-figure {
+      background: var(--green-l);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+    }
+
+    /* FORMES LIÉES */
+    .fl-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin: 16px 0 8px;
+    }
+
+    .fl-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .fl-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--text);
+      text-decoration: none;
+      transition: all .18s;
+    }
+
+    .fl-link:hover {
+      background: var(--green-l);
+      border-color: var(--green);
+      color: var(--green-d);
+    }
+
+    footer {
+      background: var(--green-d);
+      color: #a7f3d0;
+      padding: 32px 24px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 60px;
+    }
+
+    footer strong {
+      color: #fff;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    footer a {
+      color: #6ee7b7;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color .15s;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+
+    @media(max-width:768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+
+      .tc-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .tc-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .tc-num {
+        font-size: 36px;
+      }
+
+      .container {
+        padding: 24px 16px;
+      }
+
+      .tc-body {
+        padding: 20px;
+      }
+    }
+
+    @media(max-width:480px) {
+      .calc-row {
+        flex-direction: column;
+      }
+
+      .calc-field input {
+        width: 100%;
+      }
+
+      .calc-tabs {
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Bannière d'installation PWA -->
+  <div id="install-banner"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#14532d;color:#fff;padding:14px 20px;font-size:14px;font-weight:500;font-family:'Plus Jakarta Sans',sans-serif;align-items:center;justify-content:center;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);flex-wrap:wrap;">
+    <span id="install-text">📲 Installer <strong>GéoCollège</strong> sur votre appareil</span>
+    <button id="install-btn"
+      style="padding:8px 20px;background:#16a34a;color:#fff;border:none;border-radius:16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">Installer</button>
+    <button id="install-close"
+      style="background:none;border:none;color:#a7f3d0;font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;"
+      aria-label="Fermer">✕</button>
+  </div>
+
+  <nav>
+    <a class="nav-logo" href="index.html"><span class="dot"></span>GéoCollège</a>
+    <span id="offline-badge"
+      style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:4px 12px;border-radius:99px;margin-left:8px;"><span
+        style="width:8px;height:8px;background:#f59e0b;border-radius:50%;display:inline-block;animation:blink-dot 1s ease-in-out infinite;"></span>
+      Hors-ligne</span>
+    <style>
+      @keyframes blink-dot {
+
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.3;
+        }
+      }
+    </style>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-a" style="font-weight:700;">📚 Dictionnaire</a>
+      <a href="learning-path.html" class="nav-a" style="font-weight:700;">🎯 Mon Parcours</a>
+      <div style="position:relative;display:inline-block;" id="nav-more-wrap">
+        <button style="cursor:pointer;background:none;border:none;font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);padding:7px 12px;border-radius:99px;" onclick="event.stopPropagation();var dd=document.getElementById('nav-more-dd');dd.style.display=dd.style.display==='block'?'none':'block';">+ Plus</button>
+        <div id="nav-more-dd" style="display:none;position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:180px;z-index:300;">
+          <a href="formes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">📐 Formes</a>
+          <a href="theoremes.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--green-d);text-decoration:none;border-radius:8px;background:var(--green-l);font-weight:600;">📏 Théorèmes</a>
+          <a href="exercices.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">✏️ Exercices</a>
+          <a href="constructeur.html" style="display:block;padding:8px 14px;font-size:13px;color:var(--text);text-decoration:none;border-radius:8px;">🎛️ Constructeur</a>
+        </div>
+      </div>
+    </div>
+    <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+    <script>document.addEventListener('click',e=>{const w=document.getElementById('nav-more-wrap');const dd=document.getElementById('nav-more-dd');if(dd&&w&&!w.contains(e.target))dd.style.display='none';});</script>
+  </nav>
+
+  <div class="page-hero">
+    <h1>Les <span>théorèmes</span> de géométrie</h1>
+    <p>Énoncés, conditions d'application, formules, exemples résolus et calculateurs — Pythagore et Thalès.</p>
+  </div>
+
+  <main class="container">
+
+    <!-- ══ PYTHAGORE ══ -->
+    <div class="theo-card" id="pythagore">
+      <div class="tc-header">
+        <div class="tc-num">01</div>
+        <div class="tc-title-block">
+          <h2>Théorème de Pythagore</h2>
+          <div class="tc-meta">
+            <span class="niveau-pill n2AC">2AC</span>
+            <span class="cat-pill">Triangle rectangle</span>
+          </div>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="enonce">
+          <div class="enonce-lbl">Énoncé</div>
+          <div class="enonce-text">Dans un triangle rectangle, le carré de l'hypoténuse est égal à la somme des carrés
+            des deux autres côtés.</div>
+        </div>
+        <div class="condition">
+          <div class="condition-lbl">Condition d'application</div>
+          <div class="condition-text">Le triangle doit avoir <strong>un angle droit de 90°</strong>. Le côté opposé à
+            l'angle droit est l'hypoténuse — c'est toujours le côté le plus long.</div>
+        </div>
+        <div class="tc-cols">
+          <div>
+            <div class="formule-box">
+              <div class="formule-box-lbl">Formule</div>
+              <div class="formule-box-expr">a² + b² = c²</div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>c</strong> = hypoténuse
+              &nbsp;·&nbsp; <strong>a</strong>, <strong>b</strong> = les deux autres côtés</div>
+
+            <div class="ex-title">Exemples résolus</div>
+            <div class="ex-box">
+              <div class="ex-q">Trouver c si a = 3 cm et b = 4 cm</div>
+              <ul class="ex-steps">
+                <li>c² = a² + b²</li>
+                <li>c² = 3² + 4² = 9 + 16 = 25</li>
+                <li>c = √25</li>
+                <li class="final">c = 5 cm ✓</li>
+              </ul>
+            </div>
+            <div class="ex-box">
+              <div class="ex-q">Trouver b si a = 5 cm et c = 13 cm</div>
+              <ul class="ex-steps">
+                <li>b² = c² − a²</li>
+                <li>b² = 169 − 25 = 144</li>
+                <li>b = √144</li>
+                <li class="final">b = 12 cm ✓</li>
+              </ul>
+            </div>
+
+            <div class="calc-section">
+              <div class="calc-title">Calculateur Pythagore</div>
+              <div class="calc-tabs">
+                <button class="ctab active" onclick="tab('pyth','c')">Trouver c</button>
+                <button class="ctab" onclick="tab('pyth','a')">Trouver a</button>
+                <button class="ctab" onclick="tab('pyth','b')">Trouver b</button>
+              </div>
+              <div id="pyth-c" class="calc-mode active">
+                <div class="calc-hint">c = √(a² + b²)</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>Côté a (cm)</label><input type="number" id="pa1" placeholder="a"
+                      min="0" step="0.1" /></div>
+                  <div class="calc-field"><label>Côté b (cm)</label><input type="number" id="pb1" placeholder="b"
+                      min="0" step="0.1" /></div>
+                  <button class="calc-btn" onclick="pyth('c')">Calculer c</button>
+                </div>
+                <div class="calc-res" id="rc"></div>
+              </div>
+              <div id="pyth-a" class="calc-mode">
+                <div class="calc-hint">a = √(c² − b²) &nbsp; — &nbsp; c doit être le plus grand</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>Côté b (cm)</label><input type="number" id="pb2" placeholder="b"
+                      min="0" step="0.1" /></div>
+                  <div class="calc-field"><label>Hypoténuse c</label><input type="number" id="pc2" placeholder="c"
+                      min="0" step="0.1" /></div>
+                  <button class="calc-btn" onclick="pyth('a')">Calculer a</button>
+                </div>
+                <div class="calc-res" id="ra"></div>
+              </div>
+              <div id="pyth-b" class="calc-mode">
+                <div class="calc-hint">b = √(c² − a²) &nbsp; — &nbsp; c doit être le plus grand</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>Côté a (cm)</label><input type="number" id="pa3" placeholder="a"
+                      min="0" step="0.1" /></div>
+                  <div class="calc-field"><label>Hypoténuse c</label><input type="number" id="pc3" placeholder="c"
+                      min="0" step="0.1" /></div>
+                  <button class="calc-btn" onclick="pyth('b')">Calculer b</button>
+                </div>
+                <div class="calc-res" id="rb"></div>
+              </div>
+            </div>
+
+            <div class="fl-title">Formes qui utilisent ce théorème</div>
+            <div class="fl-links">
+              <a href="formes.html#card-triangle-rectangle" class="fl-link">▲ Triangle rectangle</a>
+              <a href="formes.html#card-carre" class="fl-link">■ Carré</a>
+              <a href="formes.html#card-rectangle" class="fl-link">▬ Rectangle</a>
+              <a href="formes.html#card-losange" class="fl-link">◆ Losange</a>
+            </div>
+
+            <div style="margin-top:16px;">
+              <a href="lecon.html?id=pythagore" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--green);color:#fff;border-radius:99px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#16a34a'">📖 Voir la leçon complète →</a>
+            </div>
+          </div>
+          <div class="tc-figure">
+            <svg viewBox="0 0 120 130">
+              <polygon points="10,120 110,120 10,10" stroke="#16a34a" stroke-width="2" fill="#dcfce7"
+                stroke-linejoin="round" />
+              <rect x="10" y="110" width="10" height="10" fill="none" stroke="#16a34a" stroke-width="1.5" />
+              <text x="58" y="132" font-size="11" fill="#64748b" text-anchor="middle" font-family="sans-serif">b</text>
+              <text x="2" y="68" font-size="11" fill="#64748b" font-family="sans-serif">a</text>
+              <text x="68" y="65" font-size="12" fill="#16a34a" font-family="sans-serif" font-weight="bold">c</text>
+              <text x="42" y="88" font-size="9" fill="#64748b" text-anchor="middle"
+                font-family="sans-serif">a²+b²=c²</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ THALÈS ══ -->
+    <div class="theo-card" id="thales">
+      <div class="tc-header">
+        <div class="tc-num">02</div>
+        <div class="tc-title-block">
+          <h2>Théorème de Thalès</h2>
+          <div class="tc-meta">
+            <span class="niveau-pill n3AC">3AC</span>
+            <span class="cat-pill">Droites parallèles</span>
+          </div>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="enonce">
+          <div class="enonce-lbl">Énoncé</div>
+          <div class="enonce-text">Si une droite est parallèle à un côté d'un triangle et coupe les deux autres côtés,
+            alors elle les coupe en segments proportionnels.</div>
+        </div>
+        <div class="condition">
+          <div class="condition-lbl">Condition d'application</div>
+          <div class="condition-text">Les droites (DE) et (BC) doivent être <strong>parallèles</strong>. On doit
+            vérifier que <strong>(DE) ∥ (BC)</strong> avant d'appliquer le théorème.</div>
+        </div>
+        <div class="tc-cols">
+          <div>
+            <div class="formule-box">
+              <div class="formule-box-lbl">Rapport de proportionnalité</div>
+              <div class="formule-box-expr" style="font-size:clamp(14px,2.5vw,20px);">AD/AB = AE/AC = DE/BC</div>
+            </div>
+            <div style="font-size:13px;color:var(--muted);margin-bottom:4px;"><strong>A</strong> = sommet &nbsp;·&nbsp;
+              <strong>D</strong> sur AB, <strong>E</strong> sur AC &nbsp;·&nbsp; (DE) ∥ (BC)
+            </div>
+
+            <div class="ex-title">Exemple résolu</div>
+            <div class="ex-box">
+              <div class="ex-q">AB=10, AD=4, AC=15. Trouver AE.</div>
+              <ul class="ex-steps">
+                <li>AD/AB = AE/AC &nbsp;(Thalès)</li>
+                <li>4/10 = AE/15</li>
+                <li>AE = 15 × 4 ÷ 10 = 60 ÷ 10</li>
+                <li class="final">AE = 6 cm ✓</li>
+              </ul>
+            </div>
+            <div class="ex-box">
+              <div class="ex-q">AD=3, AB=9, DE=4. Trouver BC.</div>
+              <ul class="ex-steps">
+                <li>AD/AB = DE/BC &nbsp;(Thalès)</li>
+                <li>3/9 = 4/BC</li>
+                <li>BC = 4 × 9 ÷ 3 = 36 ÷ 3</li>
+                <li class="final">BC = 12 cm ✓</li>
+              </ul>
+            </div>
+
+            <div class="calc-section">
+              <div class="calc-title">Calculateur Thalès</div>
+              <div class="calc-tabs">
+                <button class="ctab active" onclick="tab('th','ae')">Trouver AE</button>
+                <button class="ctab" onclick="tab('th','bc')">Trouver BC</button>
+                <button class="ctab" onclick="tab('th','de')">Trouver DE</button>
+              </div>
+              <div id="th-ae" class="calc-mode active">
+                <div class="calc-hint">AE = AC × AD ÷ AB</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>AD (cm)</label><input type="number" id="tAD1" placeholder="AD" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>AB (cm)</label><input type="number" id="tAB1" placeholder="AB" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>AC (cm)</label><input type="number" id="tAC1" placeholder="AC" min="0"
+                      step="0.1" /></div>
+                  <button class="calc-btn" onclick="thales('ae')">Calculer AE</button>
+                </div>
+                <div class="calc-res" id="r-ae"></div>
+              </div>
+              <div id="th-bc" class="calc-mode">
+                <div class="calc-hint">BC = DE × AB ÷ AD</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>AD (cm)</label><input type="number" id="tAD2" placeholder="AD" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>AB (cm)</label><input type="number" id="tAB2" placeholder="AB" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>DE (cm)</label><input type="number" id="tDE2" placeholder="DE" min="0"
+                      step="0.1" /></div>
+                  <button class="calc-btn" onclick="thales('bc')">Calculer BC</button>
+                </div>
+                <div class="calc-res" id="r-bc"></div>
+              </div>
+              <div id="th-de" class="calc-mode">
+                <div class="calc-hint">DE = BC × AD ÷ AB</div>
+                <div class="calc-row">
+                  <div class="calc-field"><label>AD (cm)</label><input type="number" id="tAD3" placeholder="AD" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>AB (cm)</label><input type="number" id="tAB3" placeholder="AB" min="0"
+                      step="0.1" /></div>
+                  <div class="calc-field"><label>BC (cm)</label><input type="number" id="tBC3" placeholder="BC" min="0"
+                      step="0.1" /></div>
+                  <button class="calc-btn" onclick="thales('de')">Calculer DE</button>
+                </div>
+                <div class="calc-res" id="r-de"></div>
+              </div>
+            </div>
+
+            <div class="fl-title">Formes qui utilisent ce théorème</div>
+            <div class="fl-links">
+              <a href="formes.html#card-triangle-quelconque" class="fl-link">▲ Triangle quelconque</a>
+              <a href="formes.html#card-trapeze" class="fl-link">⬡ Trapèze</a>
+              <a href="formes.html#card-parallelogramme" class="fl-link">▱ Parallélogramme</a>
+            </div>
+
+            <div style="margin-top:16px;">
+              <a href="lecon.html?id=thales" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--green);color:#fff;border-radius:99px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#16a34a'">📖 Voir la leçon complète →</a>
+            </div>
+          </div>
+          <div class="tc-figure">
+            <svg viewBox="0 0 120 140">
+              <polygon points="60,8 10,128 110,128" stroke="#16a34a" stroke-width="2" fill="#dcfce7"
+                stroke-linejoin="round" />
+              <line x1="32" y1="72" x2="88" y2="72" stroke="#854d0e" stroke-width="2.5" />
+              <text x="56" y="5" font-size="12" fill="#16a34a" text-anchor="middle" font-family="sans-serif"
+                font-weight="bold">A</text>
+              <text x="3" y="132" font-size="12" fill="#16a34a" font-family="sans-serif" font-weight="bold">B</text>
+              <text x="111" y="132" font-size="12" fill="#16a34a" font-family="sans-serif" font-weight="bold">C</text>
+              <text x="20" y="72" font-size="12" fill="#854d0e" font-family="sans-serif" font-weight="bold">D</text>
+              <text x="90" y="72" font-size="12" fill="#854d0e" font-family="sans-serif" font-weight="bold">E</text>
+              <text x="60" y="88" font-size="9" fill="#854d0e" text-anchor="middle" font-family="sans-serif">(DE) ∥
+                (BC)</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <strong>GéoCollège</strong>
+    <p style="margin-top:8px;">Projet CRMEF Mathématiques · Géométrie collège Maroc</p>
+    <div class="footer-links">
+      <a href="index.html">Accueil</a>
+      <a href="formes.html">Toutes les formes</a>
+    </div>
+  </footer>
+
+  <script>
+    function tab(theo, mode) {
+      const prefix = theo === 'pyth' ? 'pyth' : 'th';
+      document.querySelectorAll(`[id^="${prefix}-"]`).forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.ctab').forEach(b => { if (b.getAttribute('onclick')?.includes(`'${mode}'`)) b.classList.add('active'); else b.classList.remove('active'); });
+      const el = document.getElementById(`${prefix}-${mode}`);
+      if (el) el.classList.add('active');
+    }
+
+    function show(id, html) { const el = document.getElementById(id); el.innerHTML = html; el.classList.add('show'); }
+    function err(id, msg) { show(id, `<span style="color:#b91c1c;">${msg}</span>`); }
+    function get(id) { return parseFloat(document.getElementById(id)?.value); }
+
+    function pyth(find) {
+      if (find === 'c') {
+        const a = get('pa1'), b = get('pb1');
+        if (!a || !b) return err('rc', 'Remplis a et b.');
+        const c = Math.sqrt(a ** 2 + b ** 2);
+        show('rc', `c² = ${a}² + ${b}² = ${a ** 2} + ${b ** 2} = ${a ** 2 + b ** 2}<br>c = √${a ** 2 + b ** 2} = <strong>${c.toFixed(2)} cm</strong>`);
+      } else if (find === 'a') {
+        const b = get('pb2'), c = get('pc2');
+        if (!b || !c) return err('ra', 'Remplis b et c.');
+        if (c <= b) return err('ra', 'c (hypoténuse) doit être plus grand que b.');
+        const a = Math.sqrt(c ** 2 - b ** 2);
+        show('ra', `a² = c² − b² = ${c ** 2} − ${b ** 2} = ${c ** 2 - b ** 2}<br>a = <strong>${a.toFixed(2)} cm</strong>`);
+      } else {
+        const a = get('pa3'), c = get('pc3');
+        if (!a || !c) return err('rb', 'Remplis a et c.');
+        if (c <= a) return err('rb', 'c (hypoténuse) doit être plus grand que a.');
+        const b = Math.sqrt(c ** 2 - a ** 2);
+        show('rb', `b² = c² − a² = ${c ** 2} − ${a ** 2} = ${c ** 2 - a ** 2}<br>b = <strong>${b.toFixed(2)} cm</strong>`);
+      }
+    }
+
+    function thales(find) {
+      if (find === 'ae') {
+        const AD = get('tAD1'), AB = get('tAB1'), AC = get('tAC1');
+        if (!AD || !AB || !AC) return err('r-ae', 'Remplis toutes les valeurs.');
+        const AE = (AC * AD) / AB;
+        show('r-ae', `AE = AC × AD ÷ AB = ${AC} × ${AD} ÷ ${AB}<br>AE = <strong>${AE.toFixed(2)} cm</strong>`);
+      } else if (find === 'bc') {
+        const AD = get('tAD2'), AB = get('tAB2'), DE = get('tDE2');
+        if (!AD || !AB || !DE) return err('r-bc', 'Remplis toutes les valeurs.');
+        const BC = (DE * AB) / AD;
+        show('r-bc', `BC = DE × AB ÷ AD = ${DE} × ${AB} ÷ ${AD}<br>BC = <strong>${BC.toFixed(2)} cm</strong>`);
+      } else {
+        const AD = get('tAD3'), AB = get('tAB3'), BC = get('tBC3');
+        if (!AD || !AB || !BC) return err('r-de', 'Remplis toutes les valeurs.');
+        const DE = (BC * AD) / AB;
+        show('r-de', `DE = BC × AD ÷ AB = ${BC} × ${AD} ÷ ${AB}<br>DE = <strong>${DE.toFixed(2)} cm</strong>`);
+      }
+    }
+  </script>
+
+  <script src="geo-auth.js"></script>
+
+  <!-- PWA : Service Worker + Install Banner + Offline Badge -->
+  <script src="pwa.js"></script>
+</body>
+
+</html>

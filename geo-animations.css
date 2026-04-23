@@ -1,0 +1,385 @@
+/* ============================================================
+   geo-animations.css
+   Animations des figures géométriques — GéoCollège
+   À ajouter dans index.html et formes.html
+   ============================================================ */
+
+/* ── Variables d'animation ── */
+:root {
+  --anim-speed:    0.6s;
+  --anim-delay:    0.1s;
+  --stroke-color:  #16a34a;
+  --fill-color:    #dcfce7;
+  --glow-color:    rgba(22, 163, 74, 0.35);
+  --label-color:   #64748b;
+}
+
+/* ══════════════════════════════════════════════════════════
+   1. CONTENEUR SVG — état de base
+══════════════════════════════════════════════════════════ */
+
+/* Toutes les figures SVG dans les cartes et l'accordéon */
+.card-icon svg,
+.fd-figure svg,
+.rp-fig svg,
+.forme-figure svg {
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+  overflow: visible;
+}
+
+/* ── Hover sur le conteneur ── */
+.forme-card:hover .card-icon svg,
+.fd-figure:hover svg,
+.rp-fig:hover svg {
+  transform: scale(1.08);
+  filter: drop-shadow(0 4px 12px var(--glow-color));
+}
+
+/* ══════════════════════════════════════════════════════════
+   2. ANIMATION "DRAW" — tracé des contours
+   Les polygon/rect/circle/line se dessinent progressivement
+══════════════════════════════════════════════════════════ */
+
+/* Polygon (triangle, losange, trapèze, parallélogramme) */
+.fd-figure svg polygon,
+.rp-fig svg polygon,
+.forme-figure svg polygon {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: none;
+  fill-opacity: 0;
+  transition: fill-opacity 0.4s ease 0.5s;
+}
+
+/* Rectangle / Carré */
+.fd-figure svg rect:not([width="14"]):not([width="10"]):not([x="10"][y="90"]):not([x="10"][y="10"][width="14"]):not([x="25"][y="76"]):not([x="75"][y="90"]),
+.rp-fig svg rect:not([width="14"]):not([width="10"]),
+.forme-figure svg rect:not([width="14"]):not([width="10"]) {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: none;
+  fill-opacity: 0;
+  transition: fill-opacity 0.4s ease 0.5s;
+}
+
+/* Cercle */
+.fd-figure svg circle:not([r="3"]):not([r="50"][fill="#4ade80"]):not([r="50"][fill="#a8dcc4"]),
+.rp-fig svg circle:not([r="3"]) {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: none;
+  fill-opacity: 0;
+  transition: fill-opacity 0.4s ease 0.5s;
+}
+
+/* Lignes (hauteur, diagonales) */
+.fd-figure svg line,
+.rp-fig svg line {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.7s;
+}
+
+/* Labels texte */
+.fd-figure svg text,
+.rp-fig svg text {
+  opacity: 0;
+  animation: none;
+  transition: opacity 0.3s ease 0.8s;
+}
+
+/* ── Activation quand la figure est visible ── */
+
+/* Classe ajoutée par JS quand la figure entre dans le viewport */
+.fig-animate polygon {
+  animation: drawPath var(--anim-speed) ease forwards !important;
+  fill-opacity: 1 !important;
+  transition: none !important;
+}
+
+.fig-animate rect:not([width="14"]):not([width="10"]) {
+  animation: drawPath var(--anim-speed) ease forwards !important;
+  fill-opacity: 1 !important;
+  transition: none !important;
+}
+
+.fig-animate circle:not([r="3"]) {
+  animation: drawCircle var(--anim-speed) ease forwards !important;
+  fill-opacity: 1 !important;
+  transition: none !important;
+}
+
+.fig-animate line {
+  animation: drawLine 0.4s ease calc(var(--anim-speed) * 0.8) forwards !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+.fig-animate text {
+  animation: fadeInLabel 0.4s ease calc(var(--anim-speed) * 1.2) forwards !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   3. KEYFRAMES
+══════════════════════════════════════════════════════════ */
+
+/* Tracé du contour */
+@keyframes drawPath {
+  0%   { stroke-dashoffset: 600; fill-opacity: 0; }
+  60%  { fill-opacity: 0; }
+  100% { stroke-dashoffset: 0;   fill-opacity: 1; }
+}
+
+/* Tracé du cercle */
+@keyframes drawCircle {
+  0%   { stroke-dashoffset: 400; fill-opacity: 0; }
+  60%  { fill-opacity: 0; }
+  100% { stroke-dashoffset: 0;   fill-opacity: 1; }
+}
+
+/* Tracé des lignes */
+@keyframes drawLine {
+  from { stroke-dashoffset: 200; opacity: 0; }
+  to   { stroke-dashoffset: 0;   opacity: 1; }
+}
+
+/* Apparition des labels */
+@keyframes fadeInLabel {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   4. ANIMATION HOVER — pulsation sur survol
+══════════════════════════════════════════════════════════ */
+
+.fd-figure svg:hover polygon,
+.fd-figure svg:hover rect:not([width="14"]):not([width="10"]) {
+  animation: pulseGlow 1.5s ease-in-out infinite !important;
+}
+
+.fd-figure svg:hover circle:not([r="3"]) {
+  animation: pulseGlow 1.5s ease-in-out infinite !important;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    filter: none;
+    stroke: #16a34a;
+    stroke-width: 2;
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(22,163,74,0.6));
+    stroke: #4ade80;
+    stroke-width: 2.5;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   5. ANIMATION SPÉCIALE — angle droit (carré à 90°)
+══════════════════════════════════════════════════════════ */
+
+/* Le petit carré d'angle droit clignote pour attirer l'attention */
+.fig-animate rect[width="14"],
+.fig-animate rect[width="10"][height="10"] {
+  animation: blinkAngle 0.5s ease 0.9s 3 !important;
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+}
+
+@keyframes blinkAngle {
+  0%, 100% { stroke: #16a34a; fill: none; }
+  50%       { stroke: #4ade80; fill: rgba(74,222,128,0.2); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   6. ANIMATION CARTES — entrée au chargement
+══════════════════════════════════════════════════════════ */
+
+.forme-card {
+  animation: cardEntrance 0.4s ease both;
+}
+.forme-card:nth-child(1)  { animation-delay: 0.05s; }
+.forme-card:nth-child(2)  { animation-delay: 0.10s; }
+.forme-card:nth-child(3)  { animation-delay: 0.15s; }
+.forme-card:nth-child(4)  { animation-delay: 0.20s; }
+.forme-card:nth-child(5)  { animation-delay: 0.25s; }
+.forme-card:nth-child(6)  { animation-delay: 0.30s; }
+.forme-card:nth-child(7)  { animation-delay: 0.35s; }
+.forme-card:nth-child(8)  { animation-delay: 0.40s; }
+.forme-card:nth-child(9)  { animation-delay: 0.45s; }
+.forme-card:nth-child(10) { animation-delay: 0.50s; }
+.forme-card:nth-child(11) { animation-delay: 0.55s; }
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   7. ANIMATION ICÔNES CARTES — rotation au hover
+══════════════════════════════════════════════════════════ */
+
+.card-icon {
+  transition: background 0.2s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.forme-card:hover .card-icon {
+  transform: rotate(-8deg) scale(1.12);
+  background: #bbf7d0;
+}
+
+.card-icon svg {
+  transition: stroke 0.2s;
+}
+.forme-card:hover .card-icon svg {
+  stroke: #14532d;
+}
+
+/* ══════════════════════════════════════════════════════════
+   8. ANIMATION PANEL RÉSULTATS — figure principale
+══════════════════════════════════════════════════════════ */
+
+/* Quand le panneau résultats s'ouvre */
+#results-panel.open .rp-fig svg,
+#results-panel.open .results-figure svg {
+  animation: figureEntrance 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+@keyframes figureEntrance {
+  from { opacity: 0; transform: scale(0.7) rotate(-5deg); }
+  to   { opacity: 1; transform: scale(1)   rotate(0deg); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   9. ANIMATION ACCORDÉON — figure qui apparaît
+══════════════════════════════════════════════════════════ */
+
+.fd-figure {
+  transition: background 0.3s;
+}
+.forme-detail.open .fd-figure {
+  animation: figureEntrance 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* ══════════════════════════════════════════════════════════
+   10. ANIMATION CALCULATEUR — résultat qui apparaît
+══════════════════════════════════════════════════════════ */
+
+.etapes-bloc {
+  animation: none;
+  opacity: 0;
+}
+.etapes-bloc.visible {
+  animation: slideUpFade 0.35s ease forwards;
+}
+.etapes-bloc:nth-child(2) { animation-delay: 0.1s; }
+.etapes-bloc:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Étape finale — highlight spécial */
+.etape-finale {
+  animation: highlightResult 0.4s ease 0.5s both;
+}
+
+@keyframes highlightResult {
+  0%   { background: #bbf7d0; border-radius: 6px; }
+  100% { background: transparent; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   11. ANIMATION TAGS NIVEAU
+══════════════════════════════════════════════════════════ */
+
+.niveau-pill, .badge {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.forme-card:hover .niveau-pill {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ══════════════════════════════════════════════════════════
+   12. RIPPLE EFFECT — bouton calculer
+══════════════════════════════════════════════════════════ */
+
+.calc-btn, .calc-go {
+  position: relative;
+  overflow: hidden;
+}
+.calc-btn::after, .calc-go::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.3);
+  border-radius: inherit;
+  transform: scale(0);
+  opacity: 1;
+  transition: transform 0.4s, opacity 0.4s;
+}
+.calc-btn:active::after, .calc-go:active::after {
+  transform: scale(2);
+  opacity: 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   13. LOADER — pendant le chargement fetch()
+══════════════════════════════════════════════════════════ */
+
+.geo-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.geo-loader svg {
+  animation: rotateFig 2s linear infinite;
+  width: 48px; height: 48px;
+}
+
+@keyframes rotateFig {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.geo-loader p {
+  font-size: 14px;
+  color: var(--muted, #64748b);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   14. RESPONSIVE — désactiver animations complexes sur mobile
+      (pour les petits écrans et économie batterie)
+══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .fd-figure svg:hover polygon,
+  .fd-figure svg:hover rect,
+  .fd-figure svg:hover circle {
+    animation: none !important;
+  }
+}
